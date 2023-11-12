@@ -1,0 +1,209 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AccountRequest {
+  id             String    @id @default(uuid())
+  name           String
+  companyName    String
+  companyType    String
+  companyRegNo   String
+  companyDetails String
+  taxNumber      String
+  address        String
+  city           String
+  country        String
+  phone          String
+  message        String
+  createdAt      DateTime? @default(now())
+  updatedAt      DateTime? @updatedAt
+
+  @@map("account_requests")
+}
+
+model Admin {
+  id    String @id @default(uuid())
+  name  String
+  phone String @unique
+
+  user User?
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@map("admins")
+}
+
+model Customer {
+  id             String         @id @default(uuid())
+  name           String
+  companyName    String
+  companyType    String
+  companyRegNo   String
+  companyDetails String
+  taxNumber      String
+  address        String
+  city           String
+  country        String
+  phone          String         @unique
+  status         CustomerStatus @default(active)
+
+  user User?
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  orders    Order[]
+
+  @@map("customers")
+}
+
+model User {
+  id       String   @id @default(uuid())
+  username String
+  email    String   @unique
+  password String
+  role     UserRole @default(customer)
+
+  customerId String?   @unique
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  adminId String? @unique
+  admin   Admin?  @relation(fields: [adminId], references: [id])
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@map("users")
+}
+
+model Category {
+  id            String          @id @default(uuid())
+  title         String
+  icon          String
+  createdAt     DateTime?       @default(now())
+  updatedAt     DateTime?       @updatedAt
+  subCategories SubCategory[]
+  products      Product[]
+  brands        CategoryBrand[]
+
+  @@map("categories")
+}
+
+model SubCategory {
+  id         String    @id @default(uuid())
+  title      String
+  icon       String
+  categoryId String
+  category   Category  @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+  products   Product[]
+
+  @@map("sub_categories")
+}
+
+model Brand {
+  id         String          @id @default(uuid())
+  title      String
+  logo       String
+  createdAt  DateTime?       @default(now())
+  updatedAt  DateTime?       @updatedAt
+  products   Product[]
+  categories CategoryBrand[]
+
+  @@map("brands")
+}
+
+model CategoryBrand {
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  brandId    String
+  brand      Brand    @relation(fields: [brandId], references: [id])
+
+  @@id([categoryId, brandId])
+  @@map("category_brands")
+}
+
+model Product {
+  id            String        @id @default(uuid())
+  title         String
+  image         String
+  netWeight     String
+  packetPerBox  String
+  status        ProductStatus @default(active)
+  type          ProductType
+  categoryId    String
+  category      Category      @relation(fields: [categoryId], references: [id])
+  subCategoryId String
+  subCategory   SubCategory   @relation(fields: [subCategoryId], references: [id])
+  brandId       String
+  brand         Brand         @relation(fields: [brandId], references: [id])
+  createdAt     DateTime?     @default(now())
+  updatedAt     DateTime?     @updatedAt
+  orders        OrderItem[]
+
+  @@map("products")
+}
+
+model Order {
+  id         String      @id @default(uuid())
+  customerId String
+  customer   Customer    @relation(fields: [customerId], references: [id])
+  status     OrderStatus @default(requestQuotation)
+  quotation  String?
+  invoice    String?
+
+  createdAt DateTime?   @default(now())
+  updatedAt DateTime?   @updatedAt
+  products  OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  quantity  Int
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@id([orderId, productId])
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  requestQuotation
+  quotationApproved
+  spam
+  ordered
+  orderInProcess
+  delivered
+}
+
+enum ProductStatus {
+  active
+  disabled
+}
+
+enum ProductType {
+  dry
+  frozen
+}
+
+enum CustomerStatus {
+  active
+  disabled
+}
+
+enum UserRole {
+  admin
+  customer
+}
