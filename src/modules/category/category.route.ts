@@ -1,4 +1,6 @@
+import { UserRole } from "@prisma/client";
 import express, { Router } from "express";
+import authorization from "../../middleware/authorization.middleware";
 import uploadToCloudinary from "../../middleware/fileUpload.middleware";
 import queryFeatures from "../../middleware/queryFeatures.middleware";
 import categoryController from "./category.controller";
@@ -7,7 +9,7 @@ const categoryRoutes: Router = express.Router();
 
 categoryRoutes.post(
   "/create",
-  // authorization(userRoleEnum.admin),
+  authorization(UserRole.admin),
   uploadToCloudinary("icon", "category", [
     "image/jpeg",
     "image/jpg",
@@ -30,6 +32,7 @@ categoryRoutes.get(
 
 categoryRoutes.patch(
   "/update/:id",
+  authorization(UserRole.admin),
   uploadToCloudinary("icon", "category", [
     "image/jpeg",
     "image/jpg",
@@ -38,5 +41,10 @@ categoryRoutes.patch(
   categoryController.update
 );
 
-categoryRoutes.delete("/delete/:id", categoryController.deleteCategory);
+categoryRoutes.delete(
+  "/delete/:id",
+  authorization(UserRole.admin),
+  categoryController.deleteCategory
+);
+
 export default categoryRoutes;

@@ -3,9 +3,10 @@ import httpStatus from "http-status";
 import config from "../config";
 import { jwtHelpers } from "../helpers/jwt.helper";
 import AppError from "../utils/customError.util";
+import { UserRole } from "@prisma/client";
 
 const authorization =
-  (...roles: string[]): RequestHandler =>
+  (...roles: UserRole[]): RequestHandler =>
   async (req, res, next): Promise<void> => {
     try {
       let token: string | undefined;
@@ -28,7 +29,7 @@ const authorization =
       req.user = decoded;
 
       if (roles.length > 0 && !roles.includes(decoded.role)) {
-        throw new AppError("Forbidden", httpStatus.FORBIDDEN);
+        throw new AppError("Forbidden Access", httpStatus.FORBIDDEN);
       }
       next();
     } catch (error) {

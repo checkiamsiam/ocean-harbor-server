@@ -3,6 +3,7 @@ interface IConfig {
   port: number | string;
   jwt: {
     secret: string;
+    expiresIn: string;
   };
   cloudinary: {
     cloudName: string;
