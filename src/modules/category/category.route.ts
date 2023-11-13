@@ -8,7 +8,11 @@ const categoryRoutes: Router = express.Router();
 categoryRoutes.post(
   "/create",
   // authorization(userRoleEnum.admin),
-  uploadToCloudinary("icon", "category"),
+  uploadToCloudinary("icon", "category", [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+  ]),
   categoryController.createCategory
 );
 
@@ -26,7 +30,11 @@ categoryRoutes.get(
 
 categoryRoutes.patch(
   "/update/:id",
-  uploadToCloudinary("icon", "category"),
+  uploadToCloudinary("icon", "category", [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+  ]),
   categoryController.update
 );
 
