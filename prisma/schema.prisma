@@ -90,6 +90,7 @@ model Category {
   subCategories SubCategory[]
   products      Product[]
   brands        CategoryBrand[]
+
   @@map("categories")
 }
 
