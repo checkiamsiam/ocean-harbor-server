@@ -1,12 +1,12 @@
-import { Category } from "@prisma/client";
+import { Brand } from "@prisma/client";
 import { Request, RequestHandler, Response } from "express";
 import httpStatus from "http-status";
 import catchAsyncErrors from "../../utils/catchAsyncError.util";
 import AppError from "../../utils/customError.util";
 import sendResponse from "../../utils/sendResponse.util";
-import categoryService from "./category.service";
+import brandService from "./brand.service";
 
-const createCategory: RequestHandler = catchAsyncErrors(
+const createBrand: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const file = req.file;
     if (!file) {
@@ -17,19 +17,19 @@ const createCategory: RequestHandler = catchAsyncErrors(
     } else {
       req.body.icon = file.path;
     }
-    const result = await categoryService.create(req.body);
-    sendResponse<Category>(res, {
+    const result = await brandService.create(req.body);
+    sendResponse<Brand>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Category created successfully",
+      message: "Brand created successfully",
       data: result,
     });
   }
 );
-const getCategories: RequestHandler = catchAsyncErrors(
+const getBrands: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
-    const getResult = await categoryService.getCategories(req.queryFeatures);
-    sendResponse<Partial<Category>[]>(res, {
+    const getResult = await brandService.getBrands(req.queryFeatures);
+    sendResponse<Partial<Brand>[]>(res, {
       statusCode: httpStatus.OK,
       success: true,
       data: getResult.data,
@@ -42,15 +42,17 @@ const getCategories: RequestHandler = catchAsyncErrors(
   }
 );
 
-const getSingleCategory: RequestHandler = catchAsyncErrors(
+const getSingleBrand: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const id: string = req.params.id;
-    const result: Partial<Category> | null =
-      await categoryService.getSingleCategory(id, req.queryFeatures);
+    const result: Partial<Brand> | null = await brandService.getSingleBrand(
+      id,
+      req.queryFeatures
+    );
     if (!result) {
-      throw new AppError("Category Not Found", httpStatus.NOT_FOUND);
+      throw new AppError("Brand Not Found", httpStatus.NOT_FOUND);
     }
-    sendResponse<Partial<Category>>(res, {
+    sendResponse<Partial<Brand>>(res, {
       statusCode: httpStatus.OK,
       success: true,
       data: result,
@@ -65,47 +67,47 @@ const update: RequestHandler = catchAsyncErrors(
     if (file) {
       req.body.icon = file.path;
     }
-    const updatePayload: Partial<Category> = req.body;
+    const updatePayload: Partial<Brand> = req.body;
 
-    const result: Partial<Category> | null = await categoryService.update(
+    const result: Partial<Brand> | null = await brandService.update(
       id,
       updatePayload
     );
 
     if (!result) {
-      throw new AppError("Requested Category Not Found", httpStatus.NOT_FOUND);
+      throw new AppError("Requested Brand Not Found", httpStatus.NOT_FOUND);
     }
-    sendResponse<Partial<Category>>(res, {
+    sendResponse<Partial<Brand>>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Category Updated Successfully",
+      message: "Brand Updated Successfully",
       data: result,
     });
   }
 );
 
-const deleteCategory: RequestHandler = catchAsyncErrors(
+const deleteBrand: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const id: string = req.params.id;
 
-    const result = await categoryService.deleteCategory(id);
+    const result = await brandService.deleteBrand(id);
 
     if (!result) {
-      throw new AppError("Requested Category Not Found", httpStatus.NOT_FOUND);
+      throw new AppError("Requested Brand Not Found", httpStatus.NOT_FOUND);
     }
-    sendResponse<Partial<Category>>(res, {
+    sendResponse<Partial<Brand>>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Category Deleted Successfully",
+      message: "Brand Deleted Successfully",
     });
   }
 );
 
-const categoryController = {
-  createCategory,
-  getCategories,
-  getSingleCategory,
+const brandController = {
+  createBrand,
+  getBrands,
+  getSingleBrand,
   update,
-  deleteCategory,
+  deleteBrand,
 };
-export default categoryController;
+export default brandController;

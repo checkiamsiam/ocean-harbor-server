@@ -42,6 +42,7 @@ const createCustomerReq = z.object({
       .email(),
   }),
 });
+
 const createAdminReq = z.object({
   body: z.object({
     password: z.string({

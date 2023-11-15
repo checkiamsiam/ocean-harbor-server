@@ -1,29 +1,27 @@
-import { Category, Prisma } from "@prisma/client";
+import { Brand, Prisma } from "@prisma/client";
 import prismaHelper from "../../helpers/prisma.helper";
 import {
   IQueryFeatures,
   IQueryResult,
 } from "../../interfaces/queryFeatures.interface";
 import prisma from "../../shared/prismaClient";
-import categoryValidation from "./category.validation";
 
-const create = async (payload: Category): Promise<Category> => {
-  await categoryValidation.create.parseAsync(payload);
-  const result = await prisma.category.create({
+const create = async (payload: Brand): Promise<Brand> => {
+  const result = await prisma.brand.create({
     data: payload,
   });
   return result;
 };
 
-const getCategories = async (
+const getBrands = async (
   queryFeatures: IQueryFeatures
-): Promise<IQueryResult<Category>> => {
-  const whereConditions: Prisma.CategoryWhereInput =
-    prismaHelper.findManyQueryHelper<Prisma.CategoryWhereInput>(queryFeatures, {
+): Promise<IQueryResult<Brand>> => {
+  const whereConditions: Prisma.BrandWhereInput =
+    prismaHelper.findManyQueryHelper<Prisma.BrandWhereInput>(queryFeatures, {
       searchFields: ["title"],
     });
 
-  const query: Prisma.CategoryFindManyArgs = {
+  const query: Prisma.BrandFindManyArgs = {
     where: whereConditions,
     skip: queryFeatures.skip,
     take: queryFeatures.limit,
@@ -43,9 +41,10 @@ const getCategories = async (
       query.select = { id: true, ...queryFeatures.fields };
     }
   }
+
   const [result, count] = await prisma.$transaction([
-    prisma.category.findMany(query),
-    prisma.category.count({ where: whereConditions }),
+    prisma.brand.findMany(query),
+    prisma.brand.count({ where: whereConditions }),
   ]);
 
   return {
@@ -54,11 +53,11 @@ const getCategories = async (
   };
 };
 
-const getSingleCategory = async (
+const getSingleBrand = async (
   id: string,
   queryFeatures: IQueryFeatures
-): Promise<Partial<Category> | null> => {
-  const query: Prisma.CategoryFindUniqueArgs = {
+): Promise<Partial<Brand> | null> => {
+  const query: Prisma.BrandFindUniqueArgs = {
     where: {
       id,
     },
@@ -78,19 +77,16 @@ const getSingleCategory = async (
     }
   }
 
-  const result: Partial<Category> | null = await prisma.category.findUnique(
-    query
-  );
+  const result: Partial<Brand> | null = await prisma.brand.findUnique(query);
 
   return result;
 };
 
 const update = async (
   id: string,
-  payload: Partial<Category>
-): Promise<Partial<Category> | null> => {
-  await categoryValidation.update.parseAsync(payload);
-  const result: Partial<Category> | null = await prisma.category.update({
+  payload: Partial<Brand>
+): Promise<Partial<Brand> | null> => {
+  const result: Partial<Brand> | null = await prisma.brand.update({
     where: {
       id,
     },
@@ -100,8 +96,8 @@ const update = async (
   return result;
 };
 
-const deleteCategory = async (id: string) => {
-  const result: Partial<Category> | null = await prisma.category.delete({
+const deleteBrand = async (id: string) => {
+  const result: Partial<Brand> | null = await prisma.brand.delete({
     where: {
       id,
     },
@@ -110,12 +106,12 @@ const deleteCategory = async (id: string) => {
   return result;
 };
 
-const categoryService = {
+const brandService = {
   create,
-  getCategories,
-  getSingleCategory,
+  getBrands,
+  getSingleBrand,
   update,
-  deleteCategory,
+  deleteBrand,
 };
 
-export default categoryService;
+export default brandService;

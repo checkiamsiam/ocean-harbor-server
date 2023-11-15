@@ -15,7 +15,7 @@ const makeStorage = (folder: string) => {
   return new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-      public_id: () => folder + "/" + new Date().getTime(),
+      public_id: () => `GA/${folder}/` + new Date().getTime(),
     },
   });
 };
