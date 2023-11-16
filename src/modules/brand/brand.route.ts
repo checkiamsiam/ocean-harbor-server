@@ -10,7 +10,7 @@ const brandRoutes: Router = express.Router();
 brandRoutes.post(
   "/create",
   authorization(UserRole.admin),
-  uploadToCloudinary("icon", "brand", ["image/jpeg", "image/jpg", "image/png"]),
+  uploadToCloudinary("logo", "brand", ["image/jpeg", "image/jpg", "image/png"]),
   brandController.createBrand
 );
 
@@ -25,11 +25,7 @@ brandRoutes.get(
 brandRoutes.patch(
   "/update/:id",
   authorization(UserRole.admin),
-  uploadToCloudinary("icon", "category", [
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-  ]),
+  uploadToCloudinary("logo", "brand", ["image/jpeg", "image/jpg", "image/png"]),
   brandController.update
 );
 

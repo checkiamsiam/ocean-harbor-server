@@ -9,8 +9,8 @@ const userRoutes: Router = express.Router();
 
 userRoutes.post(
   "/create-customer",
-  validateRequest(userValidations.createCustomerReq),
   authorization(UserRole.admin),
+  validateRequest(userValidations.createCustomerReq),
   userController.createCustomer
 );
 

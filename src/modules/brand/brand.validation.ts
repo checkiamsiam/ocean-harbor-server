@@ -5,11 +5,8 @@ const create = z
     title: z.string({
       required_error: "title is required",
     }),
-    icon: z.string({
+    logo: z.string({
       required_error: "icon is required",
-    }),
-    categoryId: z.string({
-      required_error: "category id is required",
     }),
   })
   .strict();
@@ -17,14 +14,13 @@ const create = z
 const update = z
   .object({
     title: z.string().optional(),
-    icon: z.string().optional(),
-    categoryId: z.string().optional(),
+    logo: z.string().optional(),
   })
   .strict();
 
-const subCategoryValidation = {
+const brandValidation = {
   create,
   update,
 };
 
-export default subCategoryValidation;
+export default brandValidation;

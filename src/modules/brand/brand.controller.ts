@@ -15,7 +15,7 @@ const createBrand: RequestHandler = catchAsyncErrors(
         httpStatus.INTERNAL_SERVER_ERROR
       );
     } else {
-      req.body.icon = file.path;
+      req.body.logo = file.path;
     }
     const result = await brandService.create(req.body);
     sendResponse<Brand>(res, {
@@ -26,6 +26,7 @@ const createBrand: RequestHandler = catchAsyncErrors(
     });
   }
 );
+
 const getBrands: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const getResult = await brandService.getBrands(req.queryFeatures);
@@ -65,7 +66,7 @@ const update: RequestHandler = catchAsyncErrors(
     const id: string = req.params.id;
     const file = req.file;
     if (file) {
-      req.body.icon = file.path;
+      req.body.logo = file.path;
     }
     const updatePayload: Partial<Brand> = req.body;
 
