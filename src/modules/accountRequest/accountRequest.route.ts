@@ -2,13 +2,16 @@ import { UserRole } from "@prisma/client";
 import express, { Router } from "express";
 import authorization from "../../middleware/authorization.middleware";
 import queryFeatures from "../../middleware/queryFeatures.middleware";
+import validateRequest from "../../middleware/validateRequest.middleware";
 import accountReqController from "./accountRequest.controller";
+import accountReqValidation from "./accountRequest.validation";
 
 const accountReqRoutes: Router = express.Router();
 
 accountReqRoutes.post(
   "/create",
   authorization(UserRole.customer),
+  validateRequest(accountReqValidation.create),
   accountReqController.create
 );
 
@@ -28,6 +31,7 @@ accountReqRoutes.get(
 accountReqRoutes.patch(
   "/accept/:id",
   authorization(UserRole.admin),
+  validateRequest(accountReqValidation.accept),
   accountReqController.acceptAccountRequest
 );
 
