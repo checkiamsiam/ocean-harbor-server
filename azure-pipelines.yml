@@ -1,21 +1,74 @@
-# Node.js with Grunt
-# Build a Node.js project using the Grunt task runner.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
 trigger:
-- main
+
+-
+ 
+main
+
 
 pool:
-  vmImage: ubuntu-latest
+
+  
+vmImage:
+ 
+ubuntu-latest
+
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
+
+-
+ 
+task:
+ 
+NodeTool@0
+
+  
+inputs:
+
+    
+versionSpec:
+ 
+'16.x'
+
+  
+displayName:
+ 
+'Install Node.js'
+
+
+-
+ 
+script:
+ 
+|
+    npm install -g typescript
+    npm install
+  displayName: 'Install dependencies'
+
+- task: TypeScriptInstaller@1
+  displayName: 'Install TypeScript'
 
 - script: |
-    npm install
-    grunt --gruntfile Gruntfile.js
-  displayName: 'npm install and run grunt'
+    tsc --project src/tsconfig.json
+  displayName: 'Compile TypeScript'
+
+- script: |
+    npm test
+  displayName: 'Run tests'
+
+- task: AzureWebApp@1
+  displayName: 'Deploy to Azure App Service'
+  inputs:
+    azureSubscription: '<your-subscription>'
+    appType: 'webApp'
+    appName: '<your-app-name>'
+    package: '${{ agent.buildDirectory }}/dist'
+    runtimeStack: 'NODE|16'
+
+- script: |
+    npx prisma generate
+    npx prisma migrate dev
+  displayName: 'Apply Prisma migrations'
+
+- script: |
+    node ./dist/index.js
+  displayName: 'Start Node.js application'
