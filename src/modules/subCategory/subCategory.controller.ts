@@ -5,6 +5,7 @@ import catchAsyncErrors from "../../utils/catchAsyncError.util";
 import AppError from "../../utils/customError.util";
 import sendResponse from "../../utils/sendResponse.util";
 import subCategoryService from "./subCategory.service";
+import subCategoryValidation from "./subCategory.validation";
 
 const createSubCategory: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
@@ -17,6 +18,7 @@ const createSubCategory: RequestHandler = catchAsyncErrors(
     } else {
       req.body.icon = file.path;
     }
+    await subCategoryValidation.create.parseAsync(req.body);
     const result = await subCategoryService.create(req.body);
     sendResponse<SubCategory>(res, {
       statusCode: httpStatus.OK,
@@ -67,11 +69,12 @@ const update: RequestHandler = catchAsyncErrors(
     if (file) {
       req.body.icon = file.path;
     }
-    const updatePayload: Partial<SubCategory> = req.body;
+
+    await subCategoryValidation.update.parseAsync(req.body);
 
     const result: Partial<SubCategory> | null = await subCategoryService.update(
       id,
-      updatePayload
+      req.body
     );
 
     if (!result) {

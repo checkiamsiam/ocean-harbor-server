@@ -5,10 +5,8 @@ import {
   IQueryResult,
 } from "../../interfaces/queryFeatures.interface";
 import prisma from "../../shared/prismaClient";
-import categoryValidation from "./category.validation";
 
 const create = async (payload: Category): Promise<Category> => {
-  await categoryValidation.create.parseAsync(payload);
   const result = await prisma.category.create({
     data: payload,
   });
@@ -89,7 +87,6 @@ const update = async (
   id: string,
   payload: Partial<Category>
 ): Promise<Partial<Category> | null> => {
-  await categoryValidation.update.parseAsync(payload);
   const result: Partial<Category> | null = await prisma.category.update({
     where: {
       id,

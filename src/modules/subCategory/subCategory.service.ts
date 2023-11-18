@@ -5,10 +5,8 @@ import {
   IQueryResult,
 } from "../../interfaces/queryFeatures.interface";
 import prisma from "../../shared/prismaClient";
-import subCategoryValidation from "./subCategory.validation";
 
 const create = async (payload: SubCategory): Promise<SubCategory> => {
-  await subCategoryValidation.create.parseAsync(payload);
   const result = await prisma.subCategory.create({
     data: payload,
   });
@@ -95,7 +93,6 @@ const update = async (
   id: string,
   payload: Partial<SubCategory>
 ): Promise<Partial<SubCategory> | null> => {
-  await subCategoryValidation.update.parseAsync(payload);
   const result: Partial<SubCategory> | null = await prisma.subCategory.update({
     where: {
       id,

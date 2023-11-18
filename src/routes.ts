@@ -1,10 +1,11 @@
 import express, { Router } from "express";
+import accountReqRoutes from "./modules/accountRequest/accountRequest.route";
 import authRoutes from "./modules/auth/auth.route";
 import brandRoutes from "./modules/brand/brand.route";
 import categoryRoutes from "./modules/category/category.route";
+import productRoutes from "./modules/product/product.route";
 import subCategoryRoutes from "./modules/subCategory/subCategory.route";
 import userRoutes from "./modules/user/user.route";
-import accountReqRoutes from "./modules/accountRequest/accountRequest.route";
 
 const router: Router = express.Router();
 
@@ -32,6 +33,10 @@ const routes: { path: string; route: Router }[] = [
   {
     path: "/brand",
     route: brandRoutes,
+  },
+  {
+    path: "/product",
+    route: productRoutes,
   },
 ];
 

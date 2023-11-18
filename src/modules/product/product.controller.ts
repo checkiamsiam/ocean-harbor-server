@@ -1,13 +1,13 @@
-import { Category } from "@prisma/client";
+import { Product } from "@prisma/client";
 import { Request, RequestHandler, Response } from "express";
 import httpStatus from "http-status";
 import catchAsyncErrors from "../../utils/catchAsyncError.util";
 import AppError from "../../utils/customError.util";
 import sendResponse from "../../utils/sendResponse.util";
-import categoryService from "./category.service";
-import categoryValidation from "./category.validation";
+import productService from "./product.service";
+import productValidation from "./product.validation";
 
-const createCategory: RequestHandler = catchAsyncErrors(
+const createProduct: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const file = req.file;
     if (!file) {
@@ -16,22 +16,22 @@ const createCategory: RequestHandler = catchAsyncErrors(
         httpStatus.INTERNAL_SERVER_ERROR
       );
     } else {
-      req.body.icon = file.path;
+      req.body.image = file.path;
     }
-    await categoryValidation.create.parseAsync(req.body);
-    const result = await categoryService.create(req.body);
-    sendResponse<Category>(res, {
+    await productValidation.create.parseAsync(req.body);
+    const result = await productService.create(req.body);
+    sendResponse<Product>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Category created successfully",
+      message: "Product created successfully",
       data: result,
     });
   }
 );
 const getCategories: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
-    const getResult = await categoryService.getCategories(req.queryFeatures);
-    sendResponse<Partial<Category>[]>(res, {
+    const getResult = await productService.getProducts(req.queryFeatures);
+    sendResponse<Partial<Product>[]>(res, {
       statusCode: httpStatus.OK,
       success: true,
       data: getResult.data,
@@ -44,15 +44,15 @@ const getCategories: RequestHandler = catchAsyncErrors(
   }
 );
 
-const getSingleCategory: RequestHandler = catchAsyncErrors(
+const getSingleProduct: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const id: string = req.params.id;
-    const result: Partial<Category> | null =
-      await categoryService.getSingleCategory(id, req.queryFeatures);
+    const result: Partial<Product> | null =
+      await productService.getSingleProduct(id, req.queryFeatures);
     if (!result) {
-      throw new AppError("Category Not Found", httpStatus.NOT_FOUND);
+      throw new AppError("Product Not Found", httpStatus.NOT_FOUND);
     }
-    sendResponse<Partial<Category>>(res, {
+    sendResponse<Partial<Product>>(res, {
       statusCode: httpStatus.OK,
       success: true,
       data: result,
@@ -65,50 +65,50 @@ const update: RequestHandler = catchAsyncErrors(
     const id: string = req.params.id;
     const file = req.file;
     if (file) {
-      req.body.icon = file.path;
+      req.body.image = file.path;
     }
 
-    await categoryValidation.update.parseAsync(req.body);
+    await productValidation.update.parseAsync(req.body);
 
-    const result: Partial<Category> | null = await categoryService.update(
+    const result: Partial<Product> | null = await productService.update(
       id,
       req.body
     );
 
     if (!result) {
-      throw new AppError("Requested Category Not Found", httpStatus.NOT_FOUND);
+      throw new AppError("Requested Product Not Found", httpStatus.NOT_FOUND);
     }
-    sendResponse<Partial<Category>>(res, {
+    sendResponse<Partial<Product>>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Category Updated Successfully",
+      message: "Product Updated Successfully",
       data: result,
     });
   }
 );
 
-const deleteCategory: RequestHandler = catchAsyncErrors(
+const deleteProduct: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const id: string = req.params.id;
 
-    const result = await categoryService.deleteCategory(id);
+    const result = await productService.deleteProduct(id);
 
     if (!result) {
-      throw new AppError("Requested Category Not Found", httpStatus.NOT_FOUND);
+      throw new AppError("Requested Product Not Found", httpStatus.NOT_FOUND);
     }
-    sendResponse<Partial<Category>>(res, {
+    sendResponse<Partial<Product>>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Category Deleted Successfully",
+      message: "Product Deleted Successfully",
     });
   }
 );
 
-const categoryController = {
-  createCategory,
+const productController = {
+  createProduct,
   getCategories,
-  getSingleCategory,
+  getSingleProduct,
   update,
-  deleteCategory,
+  deleteProduct,
 };
-export default categoryController;
+export default productController;

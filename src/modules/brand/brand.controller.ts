@@ -5,6 +5,7 @@ import catchAsyncErrors from "../../utils/catchAsyncError.util";
 import AppError from "../../utils/customError.util";
 import sendResponse from "../../utils/sendResponse.util";
 import brandService from "./brand.service";
+import brandValidation from "./brand.validation";
 
 const createBrand: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
@@ -17,6 +18,7 @@ const createBrand: RequestHandler = catchAsyncErrors(
     } else {
       req.body.logo = file.path;
     }
+    await brandValidation.create.parseAsync(req.body);
     const result = await brandService.create(req.body);
     sendResponse<Brand>(res, {
       statusCode: httpStatus.OK,
@@ -68,11 +70,12 @@ const update: RequestHandler = catchAsyncErrors(
     if (file) {
       req.body.logo = file.path;
     }
-    const updatePayload: Partial<Brand> = req.body;
+
+    await brandValidation.update.parseAsync(req.body);
 
     const result: Partial<Brand> | null = await brandService.update(
       id,
-      updatePayload
+      req.body
     );
 
     if (!result) {
