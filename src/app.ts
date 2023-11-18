@@ -30,7 +30,7 @@ app.get("/", (req, res) => {
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "Welcome to next door server",
+    message: "Welcome to golden anchor server",
   });
 });
 
