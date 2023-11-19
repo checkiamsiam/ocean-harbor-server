@@ -1,7 +1,7 @@
 import { IQueryFeatures } from "../interfaces/queryFeatures.interface";
 
 interface IOptions {
-  searchFields: string[];
+  searchFields?: string[];
   relationalFields?: { [key: string]: string };
 }
 
@@ -11,7 +11,7 @@ const findManyQueryHelper = <T>(
 ): T => {
   const andConditions = [];
 
-  if (queryFeatures.searchKey) {
+  if (queryFeatures.searchKey && options.searchFields) {
     andConditions.push({
       OR: options.searchFields.map((field) => ({
         [field]: {

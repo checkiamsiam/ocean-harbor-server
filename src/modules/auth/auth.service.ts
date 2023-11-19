@@ -39,6 +39,7 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
       email: isUserExist.email,
       role: isUserExist.role,
       username: isUserExist.username,
+      userId: isUserExist.id,
     },
     config.jwt.secret,
     config.jwt.expiresIn
