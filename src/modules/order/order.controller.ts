@@ -75,10 +75,89 @@ const getMyOrders: RequestHandler = catchAsyncErrors(
   }
 );
 
+const quotationApprove: RequestHandler = catchAsyncErrors(
+  async (req: Request, res: Response) => {
+    const file = req.file;
+    if (!file) {
+      throw new AppError(
+        "Quotation File isn't Upload Properly",
+        httpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+    const result = await orderService.quotationApprove(
+      req.params.id,
+      file.path
+    );
+
+    sendResponse<Order>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Quotation Approve successfully",
+      data: result,
+    });
+  }
+);
+
+const updateOrderStatus: RequestHandler = catchAsyncErrors(
+  async (req: Request, res: Response) => {
+    const result = await orderService.updateOrderStatus(
+      req.params.id,
+      req.body
+    );
+
+    sendResponse<Order>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order status update successfully",
+      data: result,
+    });
+  }
+);
+
+const confirmOrder: RequestHandler = catchAsyncErrors(
+  async (req: Request, res: Response) => {
+    const result = await orderService.confirmOrder(
+      req.params.id,
+      req.user.userId
+    );
+
+    sendResponse<Order>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Confirm successfully",
+      data: result,
+    });
+  }
+);
+
+const invoiceUpload: RequestHandler = catchAsyncErrors(
+  async (req: Request, res: Response) => {
+    const file = req.file;
+    if (!file) {
+      throw new AppError(
+        "Invoice File isn't Upload Properly",
+        httpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+    const result = await orderService.invoiceUpload(req.params.id, file.path);
+
+    sendResponse<Order>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Invoice Added successfully",
+      data: result,
+    });
+  }
+);
+
 const orderController = {
   requestQuotation,
   getOrders,
   getMyOrders,
   getSingleOrder,
+  quotationApprove,
+  updateOrderStatus,
+  confirmOrder,
+  invoiceUpload,
 };
 export default orderController;

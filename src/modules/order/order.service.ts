@@ -176,11 +176,177 @@ const getMyOrders = async (
   };
 };
 
+const quotationApprove = async (
+  id: string,
+  quotationFilePath: string
+): Promise<Order> => {
+  const result = await prisma.$transaction(async (txc) => {
+    const order = await txc.order.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!order || order.status !== OrderStatus.requestQuotation) {
+      throw new AppError(
+        "Order you want to approve is not requested yet or already approved",
+        httpStatus.NOT_FOUND
+      );
+    }
+
+    const orderResponse = await txc.order.update({
+      where: {
+        id,
+      },
+      data: {
+        status: OrderStatus.quotationApproved,
+        quotation: quotationFilePath,
+      },
+      include: {
+        _count: true,
+        products: true,
+      },
+    });
+
+    return orderResponse;
+  });
+
+  if (!result) {
+    throw new AppError("Order not updated", httpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  return result;
+};
+
+const updateOrderStatus = async (
+  id: string,
+  payload: Partial<Order>
+): Promise<Order> => {
+  const result = await prisma.$transaction(async (txc) => {
+    const orderResponse = await txc.order.update({
+      where: {
+        id,
+      },
+      data: payload,
+      include: {
+        _count: true,
+        products: true,
+      },
+    });
+
+    return orderResponse;
+  });
+
+  if (!result) {
+    throw new AppError("Order not updated", httpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  return result;
+};
+
+const confirmOrder = async (id: string, authUserId: string): Promise<Order> => {
+  const result = await prisma.$transaction(async (txc) => {
+    const user = await txc.user.findUnique({
+      where: {
+        id: authUserId,
+      },
+    });
+
+    if (!user || user.role !== UserRole.customer || !user.customerId) {
+      throw new AppError("Customer not found", httpStatus.NOT_FOUND);
+    }
+
+    const order = await txc.order.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (
+      !order ||
+      order.status !== OrderStatus.quotationApproved ||
+      order.customerId !== user.customerId
+    ) {
+      throw new AppError(
+        "Order you want to confirm is not approved yet or already confirm or its to her/his order",
+        httpStatus.NOT_FOUND
+      );
+    }
+
+    const orderResponse = await txc.order.update({
+      where: {
+        id,
+      },
+      data: {
+        status: OrderStatus.ordered,
+      },
+      include: {
+        _count: true,
+        products: true,
+      },
+    });
+
+    return orderResponse;
+  });
+
+  if (!result) {
+    throw new AppError("Order not updated", httpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  return result;
+};
+
+const invoiceUpload = async (
+  id: string,
+  invoiceFilePath: string
+): Promise<Order> => {
+  const result = await prisma.$transaction(async (txc) => {
+    const order = await txc.order.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!order || order.status !== OrderStatus.ordered) {
+      throw new AppError(
+        "Order you want to approve is not requested yet or already approved",
+        httpStatus.NOT_FOUND
+      );
+    }
+
+    const orderResponse = await txc.order.update({
+      where: {
+        id,
+      },
+      data: {
+        status: OrderStatus.orderInProcess,
+        invoice: invoiceFilePath,
+      },
+      include: {
+        _count: true,
+        products: true,
+      },
+    });
+
+    return orderResponse;
+  });
+
+  if (!result) {
+    throw new AppError("Order not updated", httpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  return result;
+};
+
 const orderService = {
   requestQuotation,
   getOrders,
   getMyOrders,
   getSingleOrder,
+  quotationApprove,
+  confirmOrder,
+  updateOrderStatus,
+  invoiceUpload,
 };
 
 export default orderService;

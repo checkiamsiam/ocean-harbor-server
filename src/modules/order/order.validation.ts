@@ -42,6 +42,17 @@ const statusParams = z.object({
     .strict(),
 });
 
-const orderValidation = { requestQuotation, statusParams };
+const update = z.object({
+  body: z
+    .object({
+      status: z.enum([OrderStatus.spam, OrderStatus.delivered], {
+        invalid_type_error: "status must be a spam or delivered",
+        required_error: "status is required",
+      }),
+    })
+    .strict(),
+});
+
+const orderValidation = { requestQuotation, statusParams, update };
 
 export default orderValidation;
