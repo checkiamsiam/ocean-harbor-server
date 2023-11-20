@@ -338,6 +338,30 @@ const invoiceUpload = async (
   return result;
 };
 
+const makeUnConfirmedOrderToSpamStatus = async () => {
+  try {
+    const currentDate = new Date();
+    const fourteenDaysAgo = new Date(currentDate.getTime() - 1209600000); // 14 days in milliseconds
+    await prisma.order.updateMany({
+      where: {
+        AND: [
+          { status: OrderStatus.quotationApproved },
+          {
+            createdAt: {
+              lt: fourteenDaysAgo,
+            },
+          },
+        ],
+      },
+      data: {
+        status: OrderStatus.spam,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const orderService = {
   requestQuotation,
   getOrders,
@@ -347,6 +371,7 @@ const orderService = {
   confirmOrder,
   updateOrderStatus,
   invoiceUpload,
+  makeUnConfirmedOrderToSpamStatus,
 };
 
 export default orderService;

@@ -1,6 +1,7 @@
 import { Server } from "http";
 import app from "./app";
 import config from "./config";
+import subscribeToJobs from "./jobs";
 
 // handle uncaughtExceptions
 process.on("uncaughtException", (error) => {
@@ -12,6 +13,7 @@ let server: Server;
 
 const runServer = async (): Promise<void> => {
   try {
+    await subscribeToJobs();
     server = app.listen(config.port, () => {
       if (config.isDevelopment) {
         console.log(`✔ Server started at http://localhost:${config.port}`);
