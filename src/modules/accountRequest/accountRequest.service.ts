@@ -1,4 +1,10 @@
-import { AccountRequest, Customer, Prisma, User } from "@prisma/client";
+import {
+  AccountRequest,
+  AdminNotificationType,
+  Customer,
+  Prisma,
+  User,
+} from "@prisma/client";
 import httpStatus from "http-status";
 import prismaHelper from "../../helpers/prisma.helper";
 import {
@@ -10,9 +16,23 @@ import { hashPassword } from "../../utils/bcrypt.util";
 import AppError from "../../utils/customError.util";
 
 const create = async (payload: AccountRequest): Promise<AccountRequest> => {
-  const result = await prisma.accountRequest.create({
-    data: payload,
+  const result = await prisma.$transaction(async (txc) => {
+    const result = await txc.accountRequest.create({
+      data: payload,
+    });
+
+    await txc.adminNotification.create({
+      data: {
+        message: `New account request from ${payload.name}`,
+        type: AdminNotificationType.AccountRequest,
+        title: "New account request",
+        refId: result.id,
+      },
+    });
+
+    return result;
   });
+
   return result;
 };
 

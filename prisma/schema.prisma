@@ -182,30 +182,30 @@ model OrderItem {
 }
 
 model AdminNotification {
-  id        String                @id @default(uuid())
+  id        String                 @id @default(uuid())
   title     String
   message   String
   type      AdminNotificationType?
   refId     String?
-  read      Boolean               @default(false)
-  createdAt DateTime?             @default(now())
-  updatedAt DateTime?             @updatedAt
+  read      Boolean                @default(false)
+  createdAt DateTime?              @default(now())
+  updatedAt DateTime?              @updatedAt
 
   @@map("admin_notifications")
 }
 
 model CustomerNotification {
-  id         String                   @id @default(uuid())
+  id         String                    @id @default(uuid())
   customerId String
-  customer   Customer                 @relation(fields: [customerId], references: [id], map: "customer_notification_customer_id")
+  customer   Customer                  @relation(fields: [customerId], references: [id], map: "customer_notification_customer_id")
   type       CustomerNotificationType?
   refId      String?
   title      String
   message    String
   url        String?
-  read       Boolean                  @default(false)
-  createdAt  DateTime?                @default(now())
-  updatedAt  DateTime?                @updatedAt
+  read       Boolean                   @default(false)
+  createdAt  DateTime?                 @default(now())
+  updatedAt  DateTime?                 @updatedAt
 
   @@map("user_notifications")
 }
@@ -248,7 +248,7 @@ enum AdminNotificationType {
 }
 
 enum CustomerNotificationType {
-  auotationApproved
-  auotationDeclined
+  quotationApproved
+  quotationDeclined
   invoiceAdded
 }

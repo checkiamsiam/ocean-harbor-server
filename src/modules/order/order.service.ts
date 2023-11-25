@@ -1,4 +1,10 @@
-import { Order, OrderStatus, Prisma } from "@prisma/client";
+import {
+  AdminNotificationType,
+  CustomerNotificationType,
+  Order,
+  OrderStatus,
+  Prisma,
+} from "@prisma/client";
 import httpStatus from "http-status";
 import {
   IQueryFeatures,
@@ -38,6 +44,16 @@ const requestQuotation = async (
       include: {
         _count: true,
         products: true,
+        customer: true,
+      },
+    });
+
+    await txc.adminNotification.create({
+      data: {
+        message: `New Quotation request from ${orderResponse?.customer?.name}`,
+        type: AdminNotificationType.quotationRequest,
+        title: "New Quotation request",
+        refId: orderResponse?.id,
       },
     });
 
@@ -188,6 +204,16 @@ const quotationApprove = async (
       },
     });
 
+    await txc.customerNotification.create({
+      data: {
+        message: `Your quotation request is approved by admin`,
+        type: CustomerNotificationType.quotationApproved,
+        title: "Quotation request approved",
+        refId: orderResponse?.id,
+        customerId: orderResponse?.customerId,
+      },
+    });
+
     return orderResponse;
   });
 
@@ -213,6 +239,18 @@ const updateOrderStatus = async (
         products: true,
       },
     });
+
+    if (payload.status === OrderStatus.spam) {
+      await txc.customerNotification.create({
+        data: {
+          message: `Your Quotation is declined by admin`,
+          type: CustomerNotificationType.quotationDeclined,
+          title: "Quotation Request declined",
+          refId: orderResponse?.id,
+          customerId: orderResponse?.customerId,
+        },
+      });
+    }
 
     return orderResponse;
   });
@@ -257,8 +295,31 @@ const confirmOrDeclineOrder = async (
       include: {
         _count: true,
         products: true,
+        customer: true,
       },
     });
+
+    if (status === OrderStatus.ordered) {
+      await txc.adminNotification.create({
+        data: {
+          message: `${orderResponse?.customer?.name} confirmed the order For Order Id: ${orderResponse?.id}`,
+          type: AdminNotificationType.confirmOrder,
+          title: "Order confirmed",
+          refId: orderResponse?.id,
+        },
+      });
+    }
+
+    if (status === OrderStatus.declined) {
+      await txc.adminNotification.create({
+        data: {
+          message: `${orderResponse?.customer?.name} declined the order For Order Id: ${orderResponse?.id}`,
+          type: AdminNotificationType.declineOrder,
+          title: "Order declined",
+          refId: orderResponse?.id,
+        },
+      });
+    }
 
     return orderResponse;
   });
@@ -299,6 +360,16 @@ const invoiceUpload = async (
       include: {
         _count: true,
         products: true,
+      },
+    });
+
+    await txc.customerNotification.create({
+      data: {
+        message: `Admin uploaded invoice for your order`,
+        type: CustomerNotificationType.invoiceAdded,
+        title: "Invoice Added",
+        refId: orderResponse?.id,
+        customerId: orderResponse?.customerId,
       },
     });
 
