@@ -59,6 +59,12 @@ orderRoutes.patch(
 );
 
 orderRoutes.patch(
+  "/decline-order/:id",
+  authorization(UserRole.customer),
+  orderController.declineOrder
+);
+
+orderRoutes.patch(
   "/add-invoice/:id",
   authorization(UserRole.admin),
   uploadToCloudinary("invoice", "invoices", ["application/pdf"]),

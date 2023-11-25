@@ -10,7 +10,6 @@ const accountReqRoutes: Router = express.Router();
 
 accountReqRoutes.post(
   "/create",
-  authorization(UserRole.customer),
   validateRequest(accountReqValidation.create),
   accountReqController.create
 );

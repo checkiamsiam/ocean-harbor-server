@@ -73,37 +73,37 @@ const acceptAccountRequest = async (
   id: string,
   password: string
 ): Promise<Partial<Customer> | null> => {
-  const accountRequestData = await prisma.accountRequest.findUnique({
-    where: { id },
-  });
-
-  if (!accountRequestData) {
-    throw new AppError("Account request not found", httpStatus.NOT_FOUND);
-  }
-
-  const username = accountRequestData.email.split("@")[0];
-
-  const newUserData: Partial<User> = {
-    email: accountRequestData.email,
-    username,
-  };
-
-  newUserData.password = await hashPassword(password);
-
-  const newCustomerData: Partial<Customer> = {
-    name: accountRequestData.name,
-    companyName: accountRequestData.companyName,
-    companyType: accountRequestData.companyType,
-    companyRegNo: accountRequestData.companyRegNo,
-    companyDetails: accountRequestData.companyDetails,
-    taxNumber: accountRequestData.taxNumber,
-    address: accountRequestData.address,
-    city: accountRequestData.city,
-    country: accountRequestData.country,
-    phone: accountRequestData.phone,
-  };
-
   const customer = await prisma.$transaction(async (txc) => {
+    const accountRequestData = await txc.accountRequest.delete({
+      where: { id },
+    });
+
+    if (!accountRequestData) {
+      throw new AppError("Account request not found", httpStatus.NOT_FOUND);
+    }
+
+    const username = accountRequestData.email.split("@")[0];
+
+    const newUserData: Partial<User> = {
+      email: accountRequestData.email,
+      username,
+    };
+
+    newUserData.password = await hashPassword(password);
+
+    const newCustomerData: Partial<Customer> = {
+      name: accountRequestData.name,
+      companyName: accountRequestData.companyName,
+      companyType: accountRequestData.companyType,
+      companyRegNo: accountRequestData.companyRegNo,
+      companyDetails: accountRequestData.companyDetails,
+      taxNumber: accountRequestData.taxNumber,
+      address: accountRequestData.address,
+      city: accountRequestData.city,
+      country: accountRequestData.country,
+      phone: accountRequestData.phone,
+    };
+
     const customer = await txc.customer.create({
       data: newCustomerData as Customer,
     });
@@ -112,12 +112,6 @@ const acceptAccountRequest = async (
       data: {
         ...(newUserData as User),
         customerId: customer.id,
-      },
-    });
-
-    await txc.accountRequest.delete({
-      where: {
-        id,
       },
     });
 

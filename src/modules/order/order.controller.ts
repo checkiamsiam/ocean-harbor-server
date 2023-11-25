@@ -116,15 +116,33 @@ const updateOrderStatus: RequestHandler = catchAsyncErrors(
 
 const confirmOrder: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
-    const result = await orderService.confirmOrder(
+    const result = await orderService.confirmOrDeclineOrder(
       req.params.id,
-      req.user.userId
+      req.user.userId,
+      OrderStatus.ordered
     );
 
     sendResponse<Order>(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: "Order Confirm successfully",
+      data: result,
+    });
+  }
+);
+
+const declineOrder: RequestHandler = catchAsyncErrors(
+  async (req: Request, res: Response) => {
+    const result = await orderService.confirmOrDeclineOrder(
+      req.params.id,
+      req.user.userId,
+      OrderStatus.declined
+    );
+
+    sendResponse<Order>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Order Decline successfully",
       data: result,
     });
   }
@@ -158,6 +176,7 @@ const orderController = {
   quotationApprove,
   updateOrderStatus,
   confirmOrder,
+  declineOrder,
   invoiceUpload,
 };
 export default orderController;

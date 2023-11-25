@@ -56,25 +56,26 @@ model Customer {
 
   user User?
 
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
-  orders    Order[]
+  createdAt     DateTime?              @default(now())
+  updatedAt     DateTime?              @updatedAt
+  orders        Order[]
+  notifications CustomerNotification[]
 
   @@map("customers")
 }
 
 model User {
-  id       String   @id @default(uuid())
+  id       String   @id
   username String   @unique
   email    String   @unique
   password String
   role     UserRole @default(customer)
 
   customerId String?   @unique
-  customer   Customer? @relation(fields: [customerId], references: [id])
+  customer   Customer? @relation(fields: [customerId], references: [id], map: "user_customer_id")
 
   adminId String? @unique
-  admin   Admin?  @relation(fields: [adminId], references: [id])
+  admin   Admin?  @relation(fields: [adminId], references: [id], map: "user_admin_id")
 
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
@@ -100,7 +101,7 @@ model SubCategory {
   title      String    @unique
   icon       String
   categoryId String
-  category   Category  @relation(fields: [categoryId], references: [id])
+  category   Category  @relation(fields: [categoryId], references: [id], map: "sub_category_category_id")
   createdAt  DateTime? @default(now())
   updatedAt  DateTime? @updatedAt
   products   Product[]
@@ -122,9 +123,9 @@ model Brand {
 
 model CategoryBrand {
   categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id], map: "category_brand_category_id")
   brandId    String
-  brand      Brand    @relation(fields: [brandId], references: [id])
+  brand      Brand    @relation(fields: [brandId], references: [id], map: "category_brand_brand_id")
 
   @@id([categoryId, brandId])
   @@map("category_brands")
@@ -139,11 +140,11 @@ model Product {
   status        ProductStatus @default(active)
   type          ProductType
   categoryId    String
-  category      Category      @relation(fields: [categoryId], references: [id])
+  category      Category      @relation(fields: [categoryId], references: [id], map: "product_category_id")
   subCategoryId String
-  subCategory   SubCategory   @relation(fields: [subCategoryId], references: [id])
+  subCategory   SubCategory   @relation(fields: [subCategoryId], references: [id], map: "product_sub_category_id")
   brandId       String
-  brand         Brand         @relation(fields: [brandId], references: [id])
+  brand         Brand         @relation(fields: [brandId], references: [id], map: "product_brand_id")
   createdAt     DateTime?     @default(now())
   updatedAt     DateTime?     @updatedAt
   orders        OrderItem[]
@@ -154,7 +155,7 @@ model Product {
 model Order {
   id         String      @id @default(uuid())
   customerId String
-  customer   Customer    @relation(fields: [customerId], references: [id])
+  customer   Customer    @relation(fields: [customerId], references: [id], map: "order_customer_id")
   status     OrderStatus @default(requestQuotation)
   quotation  String?
   invoice    String?
@@ -168,9 +169,9 @@ model Order {
 
 model OrderItem {
   productId String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], map: "order_item_product_id")
   orderId   String
-  order     Order   @relation(fields: [orderId], references: [id])
+  order     Order   @relation(fields: [orderId], references: [id], map: "order_item_order_id")
   quantity  Int
 
   createdAt DateTime? @default(now())
@@ -180,11 +181,41 @@ model OrderItem {
   @@map("order_items")
 }
 
+model AdminNotification {
+  id        String                @id @default(uuid())
+  title     String
+  message   String
+  type      AdminNotificationType?
+  refId     String?
+  read      Boolean               @default(false)
+  createdAt DateTime?             @default(now())
+  updatedAt DateTime?             @updatedAt
+
+  @@map("admin_notifications")
+}
+
+model CustomerNotification {
+  id         String                   @id @default(uuid())
+  customerId String
+  customer   Customer                 @relation(fields: [customerId], references: [id], map: "customer_notification_customer_id")
+  type       CustomerNotificationType?
+  refId      String?
+  title      String
+  message    String
+  url        String?
+  read       Boolean                  @default(false)
+  createdAt  DateTime?                @default(now())
+  updatedAt  DateTime?                @updatedAt
+
+  @@map("user_notifications")
+}
+
 enum OrderStatus {
   requestQuotation
   quotationApproved
   spam
   ordered
+  declined
   orderInProcess
   delivered
 }
@@ -207,4 +238,17 @@ enum CustomerStatus {
 enum UserRole {
   admin
   customer
+}
+
+enum AdminNotificationType {
+  AccountRequest
+  quotationRequest
+  confirmOrder
+  declineOrder
+}
+
+enum CustomerNotificationType {
+  auotationApproved
+  auotationDeclined
+  invoiceAdded
 }

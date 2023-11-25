@@ -1,4 +1,4 @@
-import { Order, OrderStatus, Prisma, UserRole } from "@prisma/client";
+import { Order, OrderStatus, Prisma } from "@prisma/client";
 import httpStatus from "http-status";
 import {
   IQueryFeatures,
@@ -12,19 +12,9 @@ const requestQuotation = async (
   items: { productId: string; quantity: number }[]
 ): Promise<Order> => {
   const result = await prisma.$transaction(async (txc) => {
-    const user = await txc.user.findUnique({
-      where: {
-        id: authUserId,
-      },
-    });
-
-    if (!user || user.role !== UserRole.customer || !user.customerId) {
-      throw new AppError("Customer not found", httpStatus.NOT_FOUND);
-    }
-
     const order = await txc.order.create({
       data: {
-        customerId: user.customerId,
+        customerId: authUserId,
         status: OrderStatus.requestQuotation,
       },
     });
@@ -125,20 +115,10 @@ const getMyOrders = async (
   authUserId: string,
   queryFeatures: IQueryFeatures
 ): Promise<IQueryResult<Order>> => {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: authUserId,
-    },
-  });
-
-  if (!user || user.role !== UserRole.customer || !user.customerId) {
-    throw new AppError("Customer not found", httpStatus.NOT_FOUND);
-  }
-
   const whereConditions: Prisma.OrderWhereInput = {
     AND: [
       {
-        customerId: user.customerId,
+        customerId: authUserId,
       },
       {
         status,
@@ -244,18 +224,12 @@ const updateOrderStatus = async (
   return result;
 };
 
-const confirmOrder = async (id: string, authUserId: string): Promise<Order> => {
+const confirmOrDeclineOrder = async (
+  id: string,
+  authUserId: string,
+  status: OrderStatus
+): Promise<Order> => {
   const result = await prisma.$transaction(async (txc) => {
-    const user = await txc.user.findUnique({
-      where: {
-        id: authUserId,
-      },
-    });
-
-    if (!user || user.role !== UserRole.customer || !user.customerId) {
-      throw new AppError("Customer not found", httpStatus.NOT_FOUND);
-    }
-
     const order = await txc.order.findUnique({
       where: {
         id,
@@ -265,10 +239,10 @@ const confirmOrder = async (id: string, authUserId: string): Promise<Order> => {
     if (
       !order ||
       order.status !== OrderStatus.quotationApproved ||
-      order.customerId !== user.customerId
+      order.customerId !== authUserId
     ) {
       throw new AppError(
-        "Order you want to confirm is not approved yet or already confirm or its to her/his order",
+        "Order you want to confirm/decline is not approved yet or already confirm or its to her/his order",
         httpStatus.NOT_FOUND
       );
     }
@@ -278,7 +252,7 @@ const confirmOrder = async (id: string, authUserId: string): Promise<Order> => {
         id,
       },
       data: {
-        status: OrderStatus.ordered,
+        status: status,
       },
       include: {
         _count: true,
@@ -368,7 +342,7 @@ const orderService = {
   getMyOrders,
   getSingleOrder,
   quotationApprove,
-  confirmOrder,
+  confirmOrDeclineOrder,
   updateOrderStatus,
   invoiceUpload,
   makeUnConfirmedOrderToSpamStatus,

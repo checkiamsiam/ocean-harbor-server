@@ -14,6 +14,7 @@ const createCustomer = async (
     await txc.user.create({
       data: {
         ...user,
+        id: customer.id,
         customerId: customer.id,
       },
     });
@@ -36,6 +37,7 @@ const createAdmin = async (
     await txc.user.create({
       data: {
         ...user,
+        id: admin.id,
         adminId: admin.id,
       },
     });
