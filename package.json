@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "set NODE_ENV=development&&ts-node-dev --files --rs --poll ./src/index.ts",
-    "build": "tsc",
+    "build": "tsc && npx prisma generate",
     "start": "node ./dist/index.js",
     "prisma": "npx prisma generate && npx prisma migrate dev",
     "lint": "eslint .",
