@@ -3,6 +3,7 @@ import accountReqRoutes from "./modules/accountRequest/accountRequest.route";
 import authRoutes from "./modules/auth/auth.route";
 import brandRoutes from "./modules/brand/brand.route";
 import categoryRoutes from "./modules/category/category.route";
+import notificationRoutes from "./modules/notification/notification.route";
 import orderRoutes from "./modules/order/order.route";
 import productRoutes from "./modules/product/product.route";
 import subCategoryRoutes from "./modules/subCategory/subCategory.route";
@@ -42,6 +43,10 @@ const routes: { path: string; route: Router }[] = [
   {
     path: "/order",
     route: orderRoutes,
+  },
+  {
+    path: "/notification",
+    route: notificationRoutes,
   },
 ];
 

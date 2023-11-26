@@ -66,7 +66,7 @@ const queryFeatures = (
           }
         });
       } else {
-        sortObj["createdAt"] = "asc";
+        sortObj["createdAt"] = "desc";
       }
 
       // get filters
