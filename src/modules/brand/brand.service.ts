@@ -32,9 +32,21 @@ const getBrands = async (
     queryFeatures.populate &&
     Object.keys(queryFeatures.populate).length > 0
   ) {
+    const queryFeaturePopulateCopy: Prisma.BrandInclude = {
+      ...queryFeatures.populate,
+    };
+
+    if (queryFeatures.populate.categories) {
+      queryFeaturePopulateCopy.categories = {
+        include: {
+          category: true,
+        },
+      };
+    }
+
     query.include = {
       _count: true,
-      ...queryFeatures.populate,
+      ...queryFeaturePopulateCopy,
     };
   } else {
     if (queryFeatures.fields && Object.keys(queryFeatures.fields).length > 0) {
@@ -67,9 +79,21 @@ const getSingleBrand = async (
     queryFeatures.populate &&
     Object.keys(queryFeatures.populate).length > 0
   ) {
+    const queryFeaturePopulateCopy: Prisma.BrandInclude = {
+      ...queryFeatures.populate,
+    };
+
+    if (queryFeatures.populate.categories) {
+      queryFeaturePopulateCopy.categories = {
+        include: {
+          category: true,
+        },
+      };
+    }
+
     query.include = {
       _count: true,
-      ...queryFeatures.populate,
+      ...queryFeaturePopulateCopy,
     };
   } else {
     if (queryFeatures.fields && Object.keys(queryFeatures.fields).length > 0) {

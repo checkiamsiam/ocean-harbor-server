@@ -32,9 +32,21 @@ const getCategories = async (
     queryFeatures.populate &&
     Object.keys(queryFeatures.populate).length > 0
   ) {
+    const queryFeaturePopulateCopy: Prisma.CategoryInclude = {
+      ...queryFeatures.populate,
+    };
+
+    if (queryFeatures.populate.brands) {
+      queryFeaturePopulateCopy.brands = {
+        include: {
+          brand: true,
+        },
+      };
+    }
+
     query.include = {
       _count: true,
-      ...queryFeatures.populate,
+      ...queryFeaturePopulateCopy,
     };
   } else {
     if (queryFeatures.fields && Object.keys(queryFeatures.fields).length > 0) {
@@ -66,9 +78,21 @@ const getSingleCategory = async (
     queryFeatures.populate &&
     Object.keys(queryFeatures.populate).length > 0
   ) {
+    const queryFeaturePopulateCopy: Prisma.CategoryInclude = {
+      ...queryFeatures.populate,
+    };
+
+    if (queryFeatures.populate.brands) {
+      queryFeaturePopulateCopy.brands = {
+        include: {
+          brand: true,
+        },
+      };
+    }
+
     query.include = {
       _count: true,
-      ...queryFeatures.populate,
+      ...queryFeaturePopulateCopy,
     };
   } else {
     if (queryFeatures.fields && Object.keys(queryFeatures.fields).length > 0) {

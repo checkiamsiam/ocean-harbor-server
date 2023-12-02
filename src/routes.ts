@@ -6,6 +6,7 @@ import categoryRoutes from "./modules/category/category.route";
 import notificationRoutes from "./modules/notification/notification.route";
 import orderRoutes from "./modules/order/order.route";
 import productRoutes from "./modules/product/product.route";
+import searchRoutes from "./modules/search/search.route";
 import subCategoryRoutes from "./modules/subCategory/subCategory.route";
 import userRoutes from "./modules/user/user.route";
 
@@ -39,6 +40,10 @@ const routes: { path: string; route: Router }[] = [
   {
     path: "/product",
     route: productRoutes,
+  },
+  {
+    path: "/search",
+    route: searchRoutes,
   },
   {
     path: "/order",
