@@ -44,6 +44,7 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         email: isUserExist.email,
         role: isUserExist.role,
         username: isUserExist.username,
+        userId: isUserExist.id,
     }, config_1.default.jwt.secret, config_1.default.jwt.expiresIn);
     return {
         accessToken,

@@ -21,7 +21,7 @@ const createCustomer = (customerData, user) => __awaiter(void 0, void 0, void 0,
         });
         user.password = yield (0, bcrypt_util_1.hashPassword)(user.password);
         yield txc.user.create({
-            data: Object.assign(Object.assign({}, user), { customerId: customer.id }),
+            data: Object.assign(Object.assign({}, user), { id: customer.id, customerId: customer.id }),
         });
         return customer;
     }));
@@ -34,7 +34,7 @@ const createAdmin = (adminData, user) => __awaiter(void 0, void 0, void 0, funct
         });
         user.password = yield (0, bcrypt_util_1.hashPassword)(user.password);
         yield txc.user.create({
-            data: Object.assign(Object.assign({}, user), { adminId: admin.id }),
+            data: Object.assign(Object.assign({}, user), { id: admin.id, adminId: admin.id }),
         });
         return admin;
     }));

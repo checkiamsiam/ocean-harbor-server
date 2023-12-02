@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./app"));
 const config_1 = __importDefault(require("./config"));
+const jobs_1 = __importDefault(require("./jobs"));
 // handle uncaughtExceptions
 process.on("uncaughtException", (error) => {
     console.error("Uncaught Exception...😓. Process Terminated");
@@ -22,6 +23,7 @@ process.on("uncaughtException", (error) => {
 let server;
 const runServer = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        yield (0, jobs_1.default)();
         server = app_1.default.listen(config_1.default.port, () => {
             if (config_1.default.isDevelopment) {
                 console.log(`✔ Server started at http://localhost:${config_1.default.port}`);

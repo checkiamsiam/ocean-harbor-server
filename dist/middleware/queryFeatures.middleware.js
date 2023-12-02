@@ -54,7 +54,7 @@ const queryFeatures = (documentNumber) => {
                 });
             }
             else {
-                sortObj["createdAt"] = "asc";
+                sortObj["createdAt"] = "desc";
             }
             // get filters
             const query = req.query;

@@ -32,7 +32,15 @@ const getBrands = (queryFeatures) => __awaiter(void 0, void 0, void 0, function*
     };
     if (queryFeatures.populate &&
         Object.keys(queryFeatures.populate).length > 0) {
-        query.include = Object.assign({ _count: true }, queryFeatures.populate);
+        const queryFeaturePopulateCopy = Object.assign({}, queryFeatures.populate);
+        if (queryFeatures.populate.categories) {
+            queryFeaturePopulateCopy.categories = {
+                include: {
+                    category: true,
+                },
+            };
+        }
+        query.include = Object.assign({ _count: true }, queryFeaturePopulateCopy);
     }
     else {
         if (queryFeatures.fields && Object.keys(queryFeatures.fields).length > 0) {
@@ -56,7 +64,15 @@ const getSingleBrand = (id, queryFeatures) => __awaiter(void 0, void 0, void 0, 
     };
     if (queryFeatures.populate &&
         Object.keys(queryFeatures.populate).length > 0) {
-        query.include = Object.assign({ _count: true }, queryFeatures.populate);
+        const queryFeaturePopulateCopy = Object.assign({}, queryFeatures.populate);
+        if (queryFeatures.populate.categories) {
+            queryFeaturePopulateCopy.categories = {
+                include: {
+                    category: true,
+                },
+            };
+        }
+        query.include = Object.assign({ _count: true }, queryFeaturePopulateCopy);
     }
     else {
         if (queryFeatures.fields && Object.keys(queryFeatures.fields).length > 0) {

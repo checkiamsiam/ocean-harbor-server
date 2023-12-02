@@ -12,31 +12,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const client_1 = require("@prisma/client");
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsyncError_util_1 = __importDefault(require("../../utils/catchAsyncError.util"));
 const customError_util_1 = __importDefault(require("../../utils/customError.util"));
 const sendResponse_util_1 = __importDefault(require("../../utils/sendResponse.util"));
 const order_service_1 = __importDefault(require("./order.service"));
-const order_validation_1 = __importDefault(require("./order.validation"));
-const createCategory = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const file = req.file;
-    if (!file) {
-        throw new customError_util_1.default("File isn't Upload Properly", http_status_1.default.INTERNAL_SERVER_ERROR);
-    }
-    else {
-        req.body.icon = file.path;
-    }
-    yield order_validation_1.default.create.parseAsync(req.body);
-    const result = yield order_service_1.default.create(req.body);
+const requestQuotation = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield order_service_1.default.requestQuotation(req.user.userId, req.body.items);
     (0, sendResponse_util_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: "Category created successfully",
+        message: "Request Quotation successfully",
         data: result,
     });
 }));
-const getCategories = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const getResult = yield order_service_1.default.getCategories(req.queryFeatures);
+const getSingleOrder = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const result = yield order_service_1.default.getSingleOrder(id);
+    if (!result) {
+        throw new customError_util_1.default("Order Not Found", http_status_1.default.NOT_FOUND);
+    }
+    (0, sendResponse_util_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        data: result,
+    });
+}));
+const getOrders = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const getResult = yield order_service_1.default.getOrders(req.params.status, req.queryFeatures);
     (0, sendResponse_util_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
@@ -48,53 +52,81 @@ const getCategories = (0, catchAsyncError_util_1.default)((req, res) => __awaite
         },
     });
 }));
-const getSingleCategory = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const result = yield order_service_1.default.getSingleCategory(id, req.queryFeatures);
-    if (!result) {
-        throw new customError_util_1.default("Category Not Found", http_status_1.default.NOT_FOUND);
-    }
+const getMyOrders = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const getResult = yield order_service_1.default.getMyOrders(req.params.status, req.user.userId, req.queryFeatures);
     (0, sendResponse_util_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        data: result,
+        data: getResult.data,
+        meta: {
+            page: req.queryFeatures.page,
+            limit: req.queryFeatures.limit,
+            total: getResult.total || 0,
+        },
     });
 }));
-const update = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
+const quotationApprove = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const file = req.file;
-    if (file) {
-        req.body.icon = file.path;
+    if (!file) {
+        throw new customError_util_1.default("Quotation File isn't Upload Properly", http_status_1.default.INTERNAL_SERVER_ERROR);
     }
-    yield order_validation_1.default.update.parseAsync(req.body);
-    const result = yield order_service_1.default.update(id, req.body);
-    if (!result) {
-        throw new customError_util_1.default("Requested Category Not Found", http_status_1.default.NOT_FOUND);
-    }
+    const result = yield order_service_1.default.quotationApprove(req.params.id, file.path);
     (0, sendResponse_util_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: "Category Updated Successfully",
+        message: "Quotation Approve successfully",
         data: result,
     });
 }));
-const deleteCategory = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const result = yield order_service_1.default.deleteCategory(id);
-    if (!result) {
-        throw new customError_util_1.default("Requested Category Not Found", http_status_1.default.NOT_FOUND);
-    }
+const updateOrderStatus = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield order_service_1.default.updateOrderStatus(req.params.id, req.body);
     (0, sendResponse_util_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: "Category Deleted Successfully",
+        message: "Order status update successfully",
+        data: result,
     });
 }));
-const categoryController = {
-    createCategory,
-    getCategories,
-    getSingleCategory,
-    update,
-    deleteCategory,
+const confirmOrder = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield order_service_1.default.confirmOrDeclineOrder(req.params.id, req.user.userId, client_1.OrderStatus.ordered);
+    (0, sendResponse_util_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Order Confirm successfully",
+        data: result,
+    });
+}));
+const declineOrder = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield order_service_1.default.confirmOrDeclineOrder(req.params.id, req.user.userId, client_1.OrderStatus.declined);
+    (0, sendResponse_util_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Order Decline successfully",
+        data: result,
+    });
+}));
+const invoiceUpload = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const file = req.file;
+    if (!file) {
+        throw new customError_util_1.default("Invoice File isn't Upload Properly", http_status_1.default.INTERNAL_SERVER_ERROR);
+    }
+    const result = yield order_service_1.default.invoiceUpload(req.params.id, file.path);
+    (0, sendResponse_util_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Invoice Added successfully",
+        data: result,
+    });
+}));
+const orderController = {
+    requestQuotation,
+    getOrders,
+    getMyOrders,
+    getSingleOrder,
+    quotationApprove,
+    updateOrderStatus,
+    confirmOrder,
+    declineOrder,
+    invoiceUpload,
 };
-exports.default = categoryController;
+exports.default = orderController;

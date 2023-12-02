@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const findManyQueryHelper = (queryFeatures, options) => {
     const andConditions = [];
-    if (queryFeatures.searchKey) {
+    if (queryFeatures.searchKey && options.searchFields) {
         andConditions.push({
             OR: options.searchFields.map((field) => ({
                 [field]: {

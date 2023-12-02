@@ -12,15 +12,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const client_1 = require("@prisma/client");
 const http_status_1 = __importDefault(require("http-status"));
 const prisma_helper_1 = __importDefault(require("../../helpers/prisma.helper"));
 const prismaClient_1 = __importDefault(require("../../shared/prismaClient"));
 const bcrypt_util_1 = require("../../utils/bcrypt.util");
 const customError_util_1 = __importDefault(require("../../utils/customError.util"));
 const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prismaClient_1.default.accountRequest.create({
-        data: payload,
-    });
+    const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield txc.accountRequest.create({
+            data: payload,
+        });
+        yield txc.adminNotification.create({
+            data: {
+                message: `New account request from ${payload.name}`,
+                type: client_1.AdminNotificationType.AccountRequest,
+                title: "New account request",
+                refId: result.id,
+            },
+        });
+        return result;
+    }));
     return result;
 });
 const getAccountRequests = (queryFeatures) => __awaiter(void 0, void 0, void 0, function* () {
@@ -58,41 +70,36 @@ const getSingleAccountRequest = (id, queryFeatures) => __awaiter(void 0, void 0,
     return result;
 });
 const acceptAccountRequest = (id, password) => __awaiter(void 0, void 0, void 0, function* () {
-    const accountRequestData = yield prismaClient_1.default.accountRequest.findUnique({
-        where: { id },
-    });
-    if (!accountRequestData) {
-        throw new customError_util_1.default("Account request not found", http_status_1.default.NOT_FOUND);
-    }
-    const username = accountRequestData.email.split("@")[0];
-    const newUserData = {
-        email: accountRequestData.email,
-        username,
-    };
-    newUserData.password = yield (0, bcrypt_util_1.hashPassword)(password);
-    const newCustomerData = {
-        name: accountRequestData.name,
-        companyName: accountRequestData.companyName,
-        companyType: accountRequestData.companyType,
-        companyRegNo: accountRequestData.companyRegNo,
-        companyDetails: accountRequestData.companyDetails,
-        taxNumber: accountRequestData.taxNumber,
-        address: accountRequestData.address,
-        city: accountRequestData.city,
-        country: accountRequestData.country,
-        phone: accountRequestData.phone,
-    };
     const customer = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
+        const accountRequestData = yield txc.accountRequest.delete({
+            where: { id },
+        });
+        if (!accountRequestData) {
+            throw new customError_util_1.default("Account request not found", http_status_1.default.NOT_FOUND);
+        }
+        const username = accountRequestData.email.split("@")[0];
+        const newUserData = {
+            email: accountRequestData.email,
+            username,
+        };
+        newUserData.password = yield (0, bcrypt_util_1.hashPassword)(password);
+        const newCustomerData = {
+            name: accountRequestData.name,
+            companyName: accountRequestData.companyName,
+            companyType: accountRequestData.companyType,
+            companyRegNo: accountRequestData.companyRegNo,
+            companyDetails: accountRequestData.companyDetails,
+            taxNumber: accountRequestData.taxNumber,
+            address: accountRequestData.address,
+            city: accountRequestData.city,
+            country: accountRequestData.country,
+            phone: accountRequestData.phone,
+        };
         const customer = yield txc.customer.create({
             data: newCustomerData,
         });
         yield txc.user.create({
             data: Object.assign(Object.assign({}, newUserData), { customerId: customer.id }),
-        });
-        yield txc.accountRequest.delete({
-            where: {
-                id,
-            },
         });
         return customer;
     }));

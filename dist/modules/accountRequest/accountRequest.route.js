@@ -11,7 +11,7 @@ const validateRequest_middleware_1 = __importDefault(require("../../middleware/v
 const accountRequest_controller_1 = __importDefault(require("./accountRequest.controller"));
 const accountRequest_validation_1 = __importDefault(require("./accountRequest.validation"));
 const accountReqRoutes = express_1.default.Router();
-accountReqRoutes.post("/create", (0, authorization_middleware_1.default)(client_1.UserRole.customer), (0, validateRequest_middleware_1.default)(accountRequest_validation_1.default.create), accountRequest_controller_1.default.create);
+accountReqRoutes.post("/create", (0, validateRequest_middleware_1.default)(accountRequest_validation_1.default.create), accountRequest_controller_1.default.create);
 accountReqRoutes.get("/", (0, authorization_middleware_1.default)(client_1.UserRole.admin), (0, queryFeatures_middleware_1.default)("multiple"), accountRequest_controller_1.default.getAccountRequests);
 accountReqRoutes.get("/:id", (0, queryFeatures_middleware_1.default)("single"), accountRequest_controller_1.default.getSingleAccountRequest);
 accountReqRoutes.patch("/accept/:id", (0, authorization_middleware_1.default)(client_1.UserRole.admin), (0, validateRequest_middleware_1.default)(accountRequest_validation_1.default.accept), accountRequest_controller_1.default.acceptAccountRequest);
