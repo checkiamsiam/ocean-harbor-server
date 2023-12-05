@@ -20,8 +20,8 @@ const getNotifications = async (
   if (user.role === UserRole.admin) {
     const [result, count] = await prisma.$transaction([
       prisma.adminNotification.findMany({
-        skip: queryFeatures.skip,
-        take: queryFeatures.limit,
+        skip: queryFeatures.skip || undefined,
+        take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
       }),
       prisma.adminNotification.count(),
@@ -38,8 +38,8 @@ const getNotifications = async (
     const [result, count] = await prisma.$transaction([
       prisma.customerNotification.findMany({
         where: whereConditions,
-        skip: queryFeatures.skip,
-        take: queryFeatures.limit,
+        skip: queryFeatures.skip || undefined,
+        take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
       }),
       prisma.customerNotification.count({ where: whereConditions }),

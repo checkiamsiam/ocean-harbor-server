@@ -29,8 +29,8 @@ const getSubCategories = async (
 
   const query: Prisma.SubCategoryFindManyArgs = {
     where: whereConditions,
-    skip: queryFeatures.skip,
-    take: queryFeatures.limit,
+    skip: queryFeatures.skip || undefined,
+    take: queryFeatures.limit || undefined,
     orderBy: queryFeatures.sort,
   };
 

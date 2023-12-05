@@ -23,8 +23,8 @@ const getBrands = async (
 
   const query: Prisma.BrandFindManyArgs = {
     where: whereConditions,
-    skip: queryFeatures.skip,
-    take: queryFeatures.limit,
+    skip: queryFeatures.skip || undefined,
+    take: queryFeatures.limit || undefined,
     orderBy: queryFeatures.sort,
   };
 

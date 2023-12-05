@@ -11,9 +11,9 @@ import ISearchResult from "./search.interface";
 const globalSearch: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const queryFeatureCopy: IQueryFeatures = {
-      limit: req.queryFeatures.limit,
+      limit: req.queryFeatures.limit || undefined,
       page: req.queryFeatures.page,
-      skip: req.queryFeatures.skip,
+      skip: req.queryFeatures.skip || undefined,
       searchKey: req.queryFeatures.searchKey,
       fields: {},
       filters: {},

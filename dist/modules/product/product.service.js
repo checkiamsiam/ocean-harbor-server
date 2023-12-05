@@ -62,8 +62,8 @@ const getProducts = (queryFeatures) => __awaiter(void 0, void 0, void 0, functio
     });
     const query = {
         where: whereConditions,
-        skip: queryFeatures.skip,
-        take: queryFeatures.limit,
+        skip: queryFeatures.skip || undefined,
+        take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
     if (queryFeatures.populate &&

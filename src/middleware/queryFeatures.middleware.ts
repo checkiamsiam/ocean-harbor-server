@@ -42,7 +42,7 @@ const queryFeatures = (
     } else {
       // set limit and skip to the request
       const page: number = parseInt(req.query.page as string) || 1;
-      const limit: number = parseInt(req.query.limit as string) || 5;
+      const limit: number = parseInt(req.query.limit as string);
       const skip: number = (page - 1) * limit;
       const searchKey: string = req.query.searchKey
         ? String(req.query.searchKey)

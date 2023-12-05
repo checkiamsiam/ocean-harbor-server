@@ -18,8 +18,8 @@ const getNotifications = (user, queryFeatures) => __awaiter(void 0, void 0, void
     if (user.role === client_1.UserRole.admin) {
         const [result, count] = yield prismaClient_1.default.$transaction([
             prismaClient_1.default.adminNotification.findMany({
-                skip: queryFeatures.skip,
-                take: queryFeatures.limit,
+                skip: queryFeatures.skip || undefined,
+                take: queryFeatures.limit || undefined,
                 orderBy: queryFeatures.sort,
             }),
             prismaClient_1.default.adminNotification.count(),
@@ -36,8 +36,8 @@ const getNotifications = (user, queryFeatures) => __awaiter(void 0, void 0, void
         const [result, count] = yield prismaClient_1.default.$transaction([
             prismaClient_1.default.customerNotification.findMany({
                 where: whereConditions,
-                skip: queryFeatures.skip,
-                take: queryFeatures.limit,
+                skip: queryFeatures.skip || undefined,
+                take: queryFeatures.limit || undefined,
                 orderBy: queryFeatures.sort,
             }),
             prismaClient_1.default.customerNotification.count({ where: whereConditions }),

@@ -97,8 +97,8 @@ const getOrders = async (
 
   const query: Prisma.OrderFindManyArgs = {
     where: whereConditions,
-    skip: queryFeatures.skip,
-    take: queryFeatures.limit,
+    skip: queryFeatures.skip || undefined,
+    take: queryFeatures.limit || undefined,
     orderBy: queryFeatures.sort,
   };
 
@@ -143,8 +143,8 @@ const getMyOrders = async (
   };
   const query: Prisma.OrderFindManyArgs = {
     where: whereConditions,
-    skip: queryFeatures.skip,
-    take: queryFeatures.limit,
+    skip: queryFeatures.skip || undefined,
+    take: queryFeatures.limit || undefined,
     orderBy: queryFeatures.sort,
   };
 

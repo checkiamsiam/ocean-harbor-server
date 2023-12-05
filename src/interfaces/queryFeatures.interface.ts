@@ -1,7 +1,7 @@
 export interface IQueryFeatures {
   page: number;
-  limit: number;
-  skip: number;
+  limit: number | undefined;
+  skip: number | undefined;
   fields: { [key: string]: boolean };
   filters: object;
   populate: { [key: string]: boolean };

@@ -23,8 +23,8 @@ const getCategories = async (
 
   const query: Prisma.CategoryFindManyArgs = {
     where: whereConditions,
-    skip: queryFeatures.skip,
-    take: queryFeatures.limit,
+    skip: queryFeatures.skip || undefined,
+    take: queryFeatures.limit || undefined,
     orderBy: queryFeatures.sort,
   };
 

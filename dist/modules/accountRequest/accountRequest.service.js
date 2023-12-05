@@ -41,8 +41,8 @@ const getAccountRequests = (queryFeatures) => __awaiter(void 0, void 0, void 0, 
     });
     const query = {
         where: whereConditions,
-        skip: queryFeatures.skip,
-        take: queryFeatures.limit,
+        skip: queryFeatures.skip || undefined,
+        take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
     if (queryFeatures.fields && Object.keys(queryFeatures.fields).length > 0) {

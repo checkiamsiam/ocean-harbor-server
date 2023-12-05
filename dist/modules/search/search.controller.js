@@ -20,9 +20,9 @@ const category_service_1 = __importDefault(require("../category/category.service
 const product_service_1 = __importDefault(require("../product/product.service"));
 const globalSearch = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const queryFeatureCopy = {
-        limit: req.queryFeatures.limit,
+        limit: req.queryFeatures.limit || undefined,
         page: req.queryFeatures.page,
-        skip: req.queryFeatures.skip,
+        skip: req.queryFeatures.skip || undefined,
         searchKey: req.queryFeatures.searchKey,
         fields: {},
         filters: {},
