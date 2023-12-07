@@ -30,6 +30,11 @@ const globalSearch: RequestHandler = catchAsyncErrors(
     sendResponse<ISearchResult>(res, {
       statusCode: httpStatus.OK,
       success: true,
+      meta: {
+        total: products.total,
+        limit: queryFeatureCopy.limit,
+        page: queryFeatureCopy.page,
+      },
       data: {
         products: products.data,
         categories: categories.data,
