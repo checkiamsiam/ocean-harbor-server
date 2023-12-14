@@ -35,7 +35,7 @@ const sendErrorProd = (err, res) => {
         console.error("Error 💥" + err);
         // 2. Send generic message to client
         (0, sendResponse_util_1.default)(res, {
-            statusCode: http_status_1.default.INTERNAL_SERVER_ERROR,
+            statusCode: err.statusCode,
             success: false,
             message: "Something went wrong",
             error: {
