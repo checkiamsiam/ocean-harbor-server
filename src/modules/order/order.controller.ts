@@ -39,7 +39,7 @@ const getSingleOrder: RequestHandler = catchAsyncErrors(
 const getOrders: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const getResult = await orderService.getOrders(
-      req.params.status as OrderStatus,
+      req.body.status as OrderStatus[],
       req.queryFeatures
     );
     sendResponse<Partial<Order>[]>(res, {
@@ -58,7 +58,7 @@ const getOrders: RequestHandler = catchAsyncErrors(
 const getMyOrders: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const getResult = await orderService.getMyOrders(
-      req.params.status as OrderStatus,
+      req.body.status as OrderStatus[],
       req.user.userId,
       req.queryFeatures
     );
