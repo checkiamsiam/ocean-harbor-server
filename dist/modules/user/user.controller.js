@@ -28,6 +28,15 @@ const http_status_1 = __importDefault(require("http-status"));
 const catchAsyncError_util_1 = __importDefault(require("../../utils/catchAsyncError.util"));
 const sendResponse_util_1 = __importDefault(require("../../utils/sendResponse.util"));
 const user_service_1 = __importDefault(require("./user.service"));
+const profile = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.default.profile(req.user);
+    (0, sendResponse_util_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Profile get successfully",
+        data: result,
+    });
+}));
 const createCustomer = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const _a = req.body, { password, email } = _a, customerData = __rest(_a, ["password", "email"]);
     const username = email.split("@")[0];
@@ -52,5 +61,5 @@ const createAdmin = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(
         data: result,
     });
 }));
-const userController = { createCustomer, createAdmin };
+const userController = { createCustomer, createAdmin, profile };
 exports.default = userController;
