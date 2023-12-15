@@ -40,6 +40,7 @@ const getSingleOrder = (0, catchAsyncError_util_1.default)((req, res) => __await
     });
 }));
 const getOrders = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+<<<<<<< HEAD
     const statusParam = req.params.status;
     const statusArray = statusParam.split(",");
     const isValid = statusArray.every((str) => Object.values(client_1.OrderStatus).includes(str));
@@ -47,6 +48,9 @@ const getOrders = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(vo
         throw new customError_util_1.default("Invalid Status", http_status_1.default.BAD_REQUEST);
     }
     const getResult = yield order_service_1.default.getOrders(statusArray, req.queryFeatures);
+=======
+    const getResult = yield order_service_1.default.getOrders(req.body.status, req.queryFeatures);
+>>>>>>> 4f3abfabc686478cce8d0cc3061e66ad8395231e
     (0, sendResponse_util_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
@@ -59,6 +63,7 @@ const getOrders = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(vo
     });
 }));
 const getMyOrders = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+<<<<<<< HEAD
     const statusParam = req.params.status;
     const statusArray = statusParam.split(",");
     const isValid = statusArray.every((str) => Object.values(client_1.OrderStatus).includes(str));
@@ -66,6 +71,9 @@ const getMyOrders = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(
         throw new customError_util_1.default("Invalid Status", http_status_1.default.BAD_REQUEST);
     }
     const getResult = yield order_service_1.default.getMyOrders(statusArray, req.user.userId, req.queryFeatures);
+=======
+    const getResult = yield order_service_1.default.getMyOrders(req.body.status, req.user.userId, req.queryFeatures);
+>>>>>>> 4f3abfabc686478cce8d0cc3061e66ad8395231e
     (0, sendResponse_util_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
