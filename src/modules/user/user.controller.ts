@@ -5,6 +5,19 @@ import catchAsyncErrors from "../../utils/catchAsyncError.util";
 import sendResponse from "../../utils/sendResponse.util";
 import userService from "./user.service";
 
+const profile: RequestHandler = catchAsyncErrors(
+  async (req: Request, res: Response) => {
+    const result = await userService.profile(req.user);
+
+    sendResponse<Customer | Admin>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Profile get successfully",
+      data: result,
+    });
+  }
+);
+
 const createCustomer: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const { password, email, ...customerData } = req.body;
@@ -22,6 +35,7 @@ const createCustomer: RequestHandler = catchAsyncErrors(
     });
   }
 );
+
 const createAdmin: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const { password, email, ...adminData } = req.body;
@@ -37,6 +51,6 @@ const createAdmin: RequestHandler = catchAsyncErrors(
   }
 );
 
-const userController = { createCustomer, createAdmin };
+const userController = { createCustomer, createAdmin, profile };
 
 export default userController;

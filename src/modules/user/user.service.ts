@@ -1,6 +1,37 @@
-import { Admin, Customer, User } from "@prisma/client";
+import { Admin, Customer, User, UserRole } from "@prisma/client";
+import httpStatus from "http-status";
+import { JwtPayload } from "jsonwebtoken";
 import prisma from "../../shared/prismaClient";
 import { hashPassword } from "../../utils/bcrypt.util";
+import AppError from "../../utils/customError.util";
+
+const profile = async (user: JwtPayload): Promise<Customer | Admin> => {
+  if (user.role === UserRole.admin) {
+    const result = await prisma.admin.findUnique({
+      where: {
+        id: user.userId,
+      },
+    });
+
+    if (!result) {
+      throw new AppError("Admin Not Found", httpStatus.NOT_FOUND);
+    }
+
+    return result;
+  } else {
+    const result = await prisma.customer.findUnique({
+      where: {
+        id: user.userId,
+      },
+    });
+
+    if (!result) {
+      throw new AppError("Customer Not Found", httpStatus.NOT_FOUND);
+    }
+
+    return result;
+  }
+};
 
 const createCustomer = async (
   customerData: Customer,
@@ -50,6 +81,7 @@ const createAdmin = async (
 const userService = {
   createCustomer,
   createAdmin,
+  profile,
 };
 
 export default userService;

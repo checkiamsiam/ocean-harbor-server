@@ -7,6 +7,12 @@ import userValidations from "./user.validation";
 
 const userRoutes: Router = express.Router();
 
+userRoutes.get(
+  "/profile",
+  authorization(UserRole.admin, UserRole.customer),
+  userController.profile
+);
+
 userRoutes.post(
   "/create-customer",
   authorization(UserRole.admin),
