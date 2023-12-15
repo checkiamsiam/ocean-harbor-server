@@ -18,10 +18,10 @@ const requestQuotation = zod_1.z.object({
     })
         .strict(),
 });
-const statusParams = zod_1.z.object({
-    params: zod_1.z
+const statusBody = zod_1.z.object({
+    body: zod_1.z
         .object({
-        status: zod_1.z.enum([
+        status: zod_1.z.array(zod_1.z.enum([
             client_1.OrderStatus.requestQuotation,
             client_1.OrderStatus.quotationApproved,
             client_1.OrderStatus.spam,
@@ -31,7 +31,7 @@ const statusParams = zod_1.z.object({
         ], {
             invalid_type_error: "status must be a requestQuotation, quotationApproved, spam, ordered, orderInProcess or delivered",
             required_error: "status is required",
-        }),
+        })),
     })
         .strict(),
 });
@@ -45,5 +45,5 @@ const update = zod_1.z.object({
     })
         .strict(),
 });
-const orderValidation = { requestQuotation, statusParams, update };
+const orderValidation = { requestQuotation, statusBody, update };
 exports.default = orderValidation;
