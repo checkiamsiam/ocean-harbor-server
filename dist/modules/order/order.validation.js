@@ -18,6 +18,8 @@ const requestQuotation = zod_1.z.object({
     })
         .strict(),
 });
+<<<<<<< HEAD
+=======
 const statusBody = zod_1.z.object({
     body: zod_1.z
         .object({
@@ -35,6 +37,7 @@ const statusBody = zod_1.z.object({
     })
         .strict(),
 });
+>>>>>>> 4f3abfabc686478cce8d0cc3061e66ad8395231e
 const update = zod_1.z.object({
     body: zod_1.z
         .object({
@@ -45,5 +48,9 @@ const update = zod_1.z.object({
     })
         .strict(),
 });
+<<<<<<< HEAD
+const orderValidation = { requestQuotation, update };
+=======
 const orderValidation = { requestQuotation, statusBody, update };
+>>>>>>> 4f3abfabc686478cce8d0cc3061e66ad8395231e
 exports.default = orderValidation;

@@ -14,8 +14,13 @@ const order_validation_1 = __importDefault(require("./order.validation"));
 const orderRoutes = express_1.default.Router();
 orderRoutes.post("/request-quotation", (0, authorization_middleware_1.default)(client_1.UserRole.customer), (0, validateRequest_middleware_1.default)(order_validation_1.default.requestQuotation), order_controller_1.default.requestQuotation);
 orderRoutes.get("/get-single-order/:id", (0, authorization_middleware_1.default)(client_1.UserRole.customer, client_1.UserRole.admin), order_controller_1.default.getSingleOrder);
+<<<<<<< HEAD
+orderRoutes.get("/get-my-orders/:status", (0, authorization_middleware_1.default)(client_1.UserRole.customer), (0, queryFeatures_middleware_1.default)("multiple"), order_controller_1.default.getMyOrders);
+orderRoutes.get("/:status", (0, authorization_middleware_1.default)(client_1.UserRole.admin), (0, queryFeatures_middleware_1.default)("multiple"), order_controller_1.default.getOrders);
+=======
 orderRoutes.get("/get-my-orders", (0, validateRequest_middleware_1.default)(order_validation_1.default.statusBody), (0, authorization_middleware_1.default)(client_1.UserRole.customer), (0, queryFeatures_middleware_1.default)("multiple"), order_controller_1.default.getMyOrders);
 orderRoutes.get("/", (0, validateRequest_middleware_1.default)(order_validation_1.default.statusBody), (0, authorization_middleware_1.default)(client_1.UserRole.admin), (0, queryFeatures_middleware_1.default)("multiple"), order_controller_1.default.getOrders);
+>>>>>>> 4f3abfabc686478cce8d0cc3061e66ad8395231e
 orderRoutes.patch("/quotation-approve/:id", (0, authorization_middleware_1.default)(client_1.UserRole.admin), (0, fileUpload_middleware_1.default)("quotation", "quotations", ["application/pdf"]), order_controller_1.default.quotationApprove);
 orderRoutes.patch("/update/:id", (0, authorization_middleware_1.default)(client_1.UserRole.admin), (0, validateRequest_middleware_1.default)(order_validation_1.default.update), order_controller_1.default.updateOrderStatus);
 orderRoutes.patch("/confirm-order/:id", (0, authorization_middleware_1.default)(client_1.UserRole.customer), order_controller_1.default.confirmOrder);

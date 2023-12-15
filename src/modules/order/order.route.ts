@@ -23,16 +23,14 @@ orderRoutes.get(
 );
 
 orderRoutes.get(
-  "/get-my-orders",
-  validateRequest(orderValidation.statusBody),
+  "/get-my-orders/:status",
   authorization(UserRole.customer),
   queryFeatures("multiple"),
   orderController.getMyOrders
 );
 
 orderRoutes.get(
-  "/",
-  validateRequest(orderValidation.statusBody),
+  "/:status",
   authorization(UserRole.admin),
   queryFeatures("multiple"),
   orderController.getOrders

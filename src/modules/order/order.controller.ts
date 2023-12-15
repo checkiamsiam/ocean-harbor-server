@@ -38,8 +38,20 @@ const getSingleOrder: RequestHandler = catchAsyncErrors(
 
 const getOrders: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
+    const statusParam = req.params.status;
+
+    const statusArray = statusParam.split(",") as OrderStatus[];
+
+    const isValid = statusArray.every((str) =>
+      Object.values(OrderStatus).includes(str)
+    );
+
+    if (!isValid) {
+      throw new AppError("Invalid Status", httpStatus.BAD_REQUEST);
+    }
+
     const getResult = await orderService.getOrders(
-      req.body.status as OrderStatus[],
+      statusArray as OrderStatus[],
       req.queryFeatures
     );
     sendResponse<Partial<Order>[]>(res, {
@@ -57,8 +69,20 @@ const getOrders: RequestHandler = catchAsyncErrors(
 
 const getMyOrders: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
+    const statusParam = req.params.status;
+
+    const statusArray = statusParam.split(",") as OrderStatus[];
+
+    const isValid = statusArray.every((str) =>
+      Object.values(OrderStatus).includes(str)
+    );
+
+    if (!isValid) {
+      throw new AppError("Invalid Status", httpStatus.BAD_REQUEST);
+    }
+
     const getResult = await orderService.getMyOrders(
-      req.body.status as OrderStatus[],
+      statusArray as OrderStatus[],
       req.user.userId,
       req.queryFeatures
     );
