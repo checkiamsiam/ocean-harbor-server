@@ -88,11 +88,13 @@ const getSingleOrder = async (id: string): Promise<Partial<Order> | null> => {
 };
 
 const getOrders = async (
-  status: OrderStatus,
+  status: OrderStatus[],
   queryFeatures: IQueryFeatures
 ): Promise<IQueryResult<Order>> => {
   const whereConditions: Prisma.OrderWhereInput = {
-    status,
+    status: {
+      in: status,
+    },
   };
 
   const query: Prisma.OrderFindManyArgs = {
@@ -127,7 +129,7 @@ const getOrders = async (
 };
 
 const getMyOrders = async (
-  status: OrderStatus,
+  status: OrderStatus[],
   authUserId: string,
   queryFeatures: IQueryFeatures
 ): Promise<IQueryResult<Order>> => {
@@ -137,7 +139,9 @@ const getMyOrders = async (
         customerId: authUserId,
       },
       {
-        status,
+        status: {
+          in: status,
+        },
       },
     ],
   };

@@ -20,28 +20,6 @@ const requestQuotation = z.object({
     .strict(),
 });
 
-const statusParams = z.object({
-  params: z
-    .object({
-      status: z.enum(
-        [
-          OrderStatus.requestQuotation,
-          OrderStatus.quotationApproved,
-          OrderStatus.spam,
-          OrderStatus.ordered,
-          OrderStatus.orderInProcess,
-          OrderStatus.delivered,
-        ],
-        {
-          invalid_type_error:
-            "status must be a requestQuotation, quotationApproved, spam, ordered, orderInProcess or delivered",
-          required_error: "status is required",
-        }
-      ),
-    })
-    .strict(),
-});
-
 const update = z.object({
   body: z
     .object({
@@ -53,6 +31,6 @@ const update = z.object({
     .strict(),
 });
 
-const orderValidation = { requestQuotation, statusParams, update };
+const orderValidation = { requestQuotation, update };
 
 export default orderValidation;

@@ -24,7 +24,6 @@ orderRoutes.get(
 
 orderRoutes.get(
   "/get-my-orders/:status",
-  validateRequest(orderValidation.statusParams),
   authorization(UserRole.customer),
   queryFeatures("multiple"),
   orderController.getMyOrders
@@ -32,7 +31,6 @@ orderRoutes.get(
 
 orderRoutes.get(
   "/:status",
-  validateRequest(orderValidation.statusParams),
   authorization(UserRole.admin),
   queryFeatures("multiple"),
   orderController.getOrders
