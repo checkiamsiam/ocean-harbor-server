@@ -18,28 +18,17 @@ const prismaClient_1 = __importDefault(require("../../shared/prismaClient"));
 const bcrypt_util_1 = require("../../utils/bcrypt.util");
 const customError_util_1 = __importDefault(require("../../utils/customError.util"));
 const profile = (user) => __awaiter(void 0, void 0, void 0, function* () {
-    if (user.role === client_1.UserRole.admin) {
-        const result = yield prismaClient_1.default.admin.findUnique({
-            where: {
-                id: user.userId,
-            },
-        });
-        if (!result) {
-            throw new customError_util_1.default("Admin Not Found", http_status_1.default.NOT_FOUND);
-        }
-        return result;
+    const include = user.role === client_1.UserRole.admin ? { admin: true } : { customer: true };
+    const result = yield prismaClient_1.default.user.findUnique({
+        where: {
+            id: user.userId,
+        },
+        include: Object.assign({}, include),
+    });
+    if (!result) {
+        throw new customError_util_1.default("User Not Found", http_status_1.default.NOT_FOUND);
     }
-    else {
-        const result = yield prismaClient_1.default.customer.findUnique({
-            where: {
-                id: user.userId,
-            },
-        });
-        if (!result) {
-            throw new customError_util_1.default("Customer Not Found", http_status_1.default.NOT_FOUND);
-        }
-        return result;
-    }
+    return result;
 });
 const createCustomer = (customerData, user) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {

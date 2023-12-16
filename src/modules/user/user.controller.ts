@@ -9,7 +9,7 @@ const profile: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const result = await userService.profile(req.user);
 
-    sendResponse<Customer | Admin>(res, {
+    sendResponse<User>(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: "Profile get successfully",
