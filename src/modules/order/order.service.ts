@@ -390,14 +390,15 @@ const invoiceUpload = async (
 const makeUnConfirmedOrderToSpamStatus = async () => {
   try {
     const currentDate = new Date();
-    const fourteenDaysAgo = new Date(currentDate.getTime() - 1209600000); // 14 days in milliseconds
+    // 3 days in milliseconds
+    const threeDaysAgo = new Date(currentDate.getTime() - 259200000); // 3 days in milliseconds
     await prisma.order.updateMany({
       where: {
         AND: [
           { status: OrderStatus.quotationApproved },
           {
             createdAt: {
-              lt: fourteenDaysAgo,
+              lt: threeDaysAgo,
             },
           },
         ],
