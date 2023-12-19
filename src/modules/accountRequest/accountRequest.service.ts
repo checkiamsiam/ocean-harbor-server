@@ -111,7 +111,7 @@ const acceptAccountRequest = async (
 
     newUserData.password = await hashPassword(password);
 
-    const newCustomerData: Partial<Customer> = {
+    const newCustomerData = {
       name: accountRequestData.name,
       companyName: accountRequestData.companyName,
       companyType: accountRequestData.companyType,
@@ -125,14 +125,16 @@ const acceptAccountRequest = async (
     };
 
     const customer = await txc.customer.create({
-      data: newCustomerData as Customer,
+      data: newCustomerData,
     });
+
+    newUserData.customerId = customer.id;
+    newUserData.id = customer.id;
 
     await txc.user.create({
       data: {
-        ...(newUserData as User),
-        customerId: customer.id,
-      },
+        ...newUserData,
+      } as User,
     });
 
     return customer;

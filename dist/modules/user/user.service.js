@@ -59,7 +59,18 @@ const createAdmin = (adminData, user) => __awaiter(void 0, void 0, void 0, funct
 });
 const getCustomers = (queryFeatures) => __awaiter(void 0, void 0, void 0, function* () {
     const whereConditions = prisma_helper_1.default.findManyQueryHelper(queryFeatures, {
-        searchFields: ["name", "companyName", "companyType", "companyRegNo", "companyDetails", "taxNumber", "address", "city", "country", "phone"],
+        searchFields: [
+            "name",
+            "companyName",
+            "companyType",
+            "companyRegNo",
+            "companyDetails",
+            "taxNumber",
+            "address",
+            "city",
+            "country",
+            "phone",
+        ],
     });
     const query = {
         where: whereConditions,
@@ -67,7 +78,8 @@ const getCustomers = (queryFeatures) => __awaiter(void 0, void 0, void 0, functi
         take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
-    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate &&
+        Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {
@@ -75,7 +87,10 @@ const getCustomers = (queryFeatures) => __awaiter(void 0, void 0, void 0, functi
             query.select = Object.assign({ id: true }, queryFeatures.fields);
         }
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.customer.findMany(query), prismaClient_1.default.customer.count({ where: whereConditions })]);
+    const [result, count] = yield prismaClient_1.default.$transaction([
+        prismaClient_1.default.customer.findMany(query),
+        prismaClient_1.default.customer.count({ where: whereConditions }),
+    ]);
     return {
         data: result,
         total: count,
@@ -91,7 +106,8 @@ const getAdmins = (queryFeatures) => __awaiter(void 0, void 0, void 0, function*
         take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
-    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate &&
+        Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({}, queryFeatures.populate);
     }
     else {
@@ -99,7 +115,10 @@ const getAdmins = (queryFeatures) => __awaiter(void 0, void 0, void 0, function*
             query.select = Object.assign({ id: true }, queryFeatures.fields);
         }
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.admin.findMany(query), prismaClient_1.default.admin.count({ where: whereConditions })]);
+    const [result, count] = yield prismaClient_1.default.$transaction([
+        prismaClient_1.default.admin.findMany(query),
+        prismaClient_1.default.admin.count({ where: whereConditions }),
+    ]);
     return {
         data: result,
         total: count,
@@ -111,7 +130,8 @@ const getSingleCustomer = (id, queryFeatures) => __awaiter(void 0, void 0, void 
             id,
         },
     };
-    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate &&
+        Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {

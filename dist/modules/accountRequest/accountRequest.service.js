@@ -48,10 +48,7 @@ const getAccountRequests = (queryFeatures) => __awaiter(void 0, void 0, void 0, 
     if (queryFeatures.fields && Object.keys(queryFeatures.fields).length > 0) {
         query.select = Object.assign({ id: true }, queryFeatures.fields);
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([
-        prismaClient_1.default.accountRequest.findMany(query),
-        prismaClient_1.default.accountRequest.count({ where: whereConditions }),
-    ]);
+    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.accountRequest.findMany(query), prismaClient_1.default.accountRequest.count({ where: whereConditions })]);
     return {
         data: result,
         total: count,
@@ -98,8 +95,10 @@ const acceptAccountRequest = (id, password) => __awaiter(void 0, void 0, void 0,
         const customer = yield txc.customer.create({
             data: newCustomerData,
         });
+        newUserData.customerId = customer.id;
+        newUserData.id = customer.id;
         yield txc.user.create({
-            data: Object.assign(Object.assign({}, newUserData), { customerId: customer.id }),
+            data: Object.assign({}, newUserData),
         });
         return customer;
     }));

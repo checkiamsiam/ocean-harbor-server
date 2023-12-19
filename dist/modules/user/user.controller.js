@@ -118,5 +118,13 @@ const updateCustomer = (0, catchAsyncError_util_1.default)((req, res) => __await
         data: result,
     });
 }));
-const userController = { createCustomer, createAdmin, profile, getCustomers, getAdmins, updateCustomer, getSingleCustomer };
+const userController = {
+    createCustomer,
+    createAdmin,
+    profile,
+    getCustomers,
+    getAdmins,
+    updateCustomer,
+    getSingleCustomer,
+};
 exports.default = userController;
