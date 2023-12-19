@@ -61,7 +61,9 @@ const updateCustomerReq = zod_1.z.object({
         country: zod_1.z.string().optional(),
         phone: zod_1.z.string().optional(),
         email: zod_1.z.string().email().optional(),
-        status: zod_1.z.enum([client_1.CustomerStatus.active, client_1.CustomerStatus.disabled]).optional(),
+        status: zod_1.z
+            .enum([client_1.CustomerStatus.active, client_1.CustomerStatus.disabled])
+            .optional(),
     })
         .strict(),
 });
@@ -83,5 +85,9 @@ const createAdminReq = zod_1.z.object({
             .email(),
     }),
 });
-const userValidations = { createCustomerReq, createAdminReq, updateCustomerReq };
+const userValidations = {
+    createCustomerReq,
+    createAdminReq,
+    updateCustomerReq,
+};
 exports.default = userValidations;
