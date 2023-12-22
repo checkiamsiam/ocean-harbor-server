@@ -7,6 +7,7 @@ import {
 } from "../../interfaces/queryFeatures.interface";
 import prisma from "../../shared/prismaClient";
 import AppError from "../../utils/customError.util";
+import { generateNewID } from "../../utils/generateId.util";
 
 const create = async (payload: Product): Promise<Product> => {
   const result = await prisma.$transaction(async (txc) => {
@@ -29,6 +30,15 @@ const create = async (payload: Product): Promise<Product> => {
         httpStatus.BAD_REQUEST
       );
     }
+
+    const latestPost = await txc.product.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 1,
+    });
+
+    const generatedId = generateNewID("P-", latestPost[0]?.id);
+
+    payload.id = generatedId;
 
     const product = await txc.product.create({
       data: payload,

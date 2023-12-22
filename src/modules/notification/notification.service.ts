@@ -59,7 +59,7 @@ const markAsRead = async (
   if (user.role === UserRole.admin) {
     const result = await prisma.adminNotification.update({
       where: {
-        id,
+        id: parseInt(id),
       },
       data: {
         read: true,
@@ -71,7 +71,7 @@ const markAsRead = async (
     const result = await prisma.customerNotification.update({
       where: {
         customerId: user.userId,
-        id,
+        id: parseInt(id),
       },
       data: {
         read: true,

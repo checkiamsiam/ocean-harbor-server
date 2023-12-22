@@ -12,14 +12,23 @@ import {
 } from "../../interfaces/queryFeatures.interface";
 import prisma from "../../shared/prismaClient";
 import AppError from "../../utils/customError.util";
+import { generateNewID } from "../../utils/generateId.util";
 
 const requestQuotation = async (
   authUserId: string,
   items: { productId: string; quantity: number }[]
 ): Promise<Order> => {
   const result = await prisma.$transaction(async (txc) => {
+    const latestPost = await txc.order.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 1,
+    });
+
+    const generatedId = generateNewID("O-", latestPost[0]?.id);
+
     const order = await txc.order.create({
       data: {
+        id: generatedId,
         customerId: authUserId,
         status: OrderStatus.requestQuotation,
       },

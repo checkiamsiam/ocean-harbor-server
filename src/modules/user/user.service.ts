@@ -9,6 +9,7 @@ import {
 import prisma from "../../shared/prismaClient";
 import { hashPassword } from "../../utils/bcrypt.util";
 import AppError from "../../utils/customError.util";
+import { generateNewID } from "../../utils/generateId.util";
 
 const profile = async (user: JwtPayload): Promise<User> => {
   const include =
@@ -34,6 +35,15 @@ const createCustomer = async (
   user: User
 ): Promise<Customer | null> => {
   const result = await prisma.$transaction(async (txc) => {
+    const latestPost = await txc.user.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 1,
+    });
+
+    const generatedId = generateNewID("U-", latestPost[0]?.id);
+
+    customerData.id = generatedId;
+
     const customer = await txc.customer.create({
       data: customerData,
     });
@@ -57,6 +67,12 @@ const createAdmin = async (
   user: User
 ): Promise<Admin | null> => {
   const result = await prisma.$transaction(async (txc) => {
+    const latestPost = await txc.user.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 1,
+    });
+    const generatedId = generateNewID("U-", latestPost[0]?.id);
+    adminData.id = generatedId;
     const admin = await txc.admin.create({
       data: adminData,
     });

@@ -18,8 +18,15 @@ const prisma_helper_1 = __importDefault(require("../../helpers/prisma.helper"));
 const prismaClient_1 = __importDefault(require("../../shared/prismaClient"));
 const bcrypt_util_1 = require("../../utils/bcrypt.util");
 const customError_util_1 = __importDefault(require("../../utils/customError.util"));
+const generateId_util_1 = require("../../utils/generateId.util");
 const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        const latestPost = yield txc.accountRequest.findMany({
+            orderBy: { createdAt: "desc" },
+            take: 1,
+        });
+        payload.id = (0, generateId_util_1.generateNewID)("AR", (_a = latestPost[0]) === null || _a === void 0 ? void 0 : _a.id);
         const result = yield txc.accountRequest.create({
             data: payload,
         });
@@ -68,19 +75,26 @@ const getSingleAccountRequest = (id, queryFeatures) => __awaiter(void 0, void 0,
 });
 const acceptAccountRequest = (id, password) => __awaiter(void 0, void 0, void 0, function* () {
     const customer = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
+        var _b;
         const accountRequestData = yield txc.accountRequest.delete({
             where: { id },
         });
         if (!accountRequestData) {
             throw new customError_util_1.default("Account request not found", http_status_1.default.NOT_FOUND);
         }
-        const username = accountRequestData.email.split("@")[0];
+        const username = accountRequestData.email.split("@")[0] + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10);
         const newUserData = {
             email: accountRequestData.email,
             username,
         };
         newUserData.password = yield (0, bcrypt_util_1.hashPassword)(password);
+        const latestPost = yield txc.user.findMany({
+            orderBy: { createdAt: "desc" },
+            take: 1,
+        });
+        const generatedId = (0, generateId_util_1.generateNewID)("U-", (_b = latestPost[0]) === null || _b === void 0 ? void 0 : _b.id);
         const newCustomerData = {
+            id: generatedId,
             name: accountRequestData.name,
             companyName: accountRequestData.companyName,
             companyType: accountRequestData.companyType,

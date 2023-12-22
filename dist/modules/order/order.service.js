@@ -16,11 +16,18 @@ const client_1 = require("@prisma/client");
 const http_status_1 = __importDefault(require("http-status"));
 const prismaClient_1 = __importDefault(require("../../shared/prismaClient"));
 const customError_util_1 = __importDefault(require("../../utils/customError.util"));
+const generateId_util_1 = require("../../utils/generateId.util");
 const requestQuotation = (authUserId, items) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
+        var _a, _b;
+        const latestPost = yield txc.order.findMany({
+            orderBy: { createdAt: "desc" },
+            take: 1,
+        });
+        const generatedId = (0, generateId_util_1.generateNewID)("O-", (_a = latestPost[0]) === null || _a === void 0 ? void 0 : _a.id);
         const order = yield txc.order.create({
             data: {
+                id: generatedId,
                 customerId: authUserId,
                 status: client_1.OrderStatus.requestQuotation,
             },
@@ -47,7 +54,7 @@ const requestQuotation = (authUserId, items) => __awaiter(void 0, void 0, void 0
         });
         yield txc.adminNotification.create({
             data: {
-                message: `New Quotation request from ${(_a = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _a === void 0 ? void 0 : _a.name}`,
+                message: `New Quotation request from ${(_b = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _b === void 0 ? void 0 : _b.name}`,
                 type: client_1.AdminNotificationType.quotationRequest,
                 title: "New Quotation request",
                 refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,
@@ -216,7 +223,7 @@ const updateOrderStatus = (id, payload) => __awaiter(void 0, void 0, void 0, fun
 });
 const confirmOrDeclineOrder = (id, authUserId, status) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
-        var _b, _c;
+        var _c, _d;
         const order = yield txc.order.findUnique({
             where: {
                 id,
@@ -243,7 +250,7 @@ const confirmOrDeclineOrder = (id, authUserId, status) => __awaiter(void 0, void
         if (status === client_1.OrderStatus.ordered) {
             yield txc.adminNotification.create({
                 data: {
-                    message: `${(_b = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _b === void 0 ? void 0 : _b.name} confirmed the order For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
+                    message: `${(_c = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _c === void 0 ? void 0 : _c.name} confirmed the order For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
                     type: client_1.AdminNotificationType.confirmOrder,
                     title: "Order confirmed",
                     refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,
@@ -253,7 +260,7 @@ const confirmOrDeclineOrder = (id, authUserId, status) => __awaiter(void 0, void
         if (status === client_1.OrderStatus.declined) {
             yield txc.adminNotification.create({
                 data: {
-                    message: `${(_c = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _c === void 0 ? void 0 : _c.name} declined the order For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
+                    message: `${(_d = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _d === void 0 ? void 0 : _d.name} declined the order For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
                     type: client_1.AdminNotificationType.declineOrder,
                     title: "Order declined",
                     refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,

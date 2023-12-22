@@ -52,7 +52,7 @@ const markAsRead = (user, id) => __awaiter(void 0, void 0, void 0, function* () 
     if (user.role === client_1.UserRole.admin) {
         const result = yield prismaClient_1.default.adminNotification.update({
             where: {
-                id,
+                id: parseInt(id),
             },
             data: {
                 read: true,
@@ -64,7 +64,7 @@ const markAsRead = (user, id) => __awaiter(void 0, void 0, void 0, function* () 
         const result = yield prismaClient_1.default.customerNotification.update({
             where: {
                 customerId: user.userId,
-                id,
+                id: parseInt(id),
             },
             data: {
                 read: true,
