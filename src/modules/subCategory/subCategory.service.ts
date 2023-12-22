@@ -5,11 +5,22 @@ import {
   IQueryResult,
 } from "../../interfaces/queryFeatures.interface";
 import prisma from "../../shared/prismaClient";
+import { generateNewID } from "../../utils/generateId.util";
 
 const create = async (payload: SubCategory): Promise<SubCategory> => {
-  const result = await prisma.subCategory.create({
-    data: payload,
+  const result = await prisma.$transaction(async (txc) => {
+    const latestPost = await txc.subCategory.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 1,
+    });
+    const generatedId = generateNewID("SC", latestPost[0]?.id);
+    payload.id = generatedId;
+    const result = await txc.subCategory.create({
+      data: payload,
+    });
+    return result;
   });
+
   return result;
 };
 

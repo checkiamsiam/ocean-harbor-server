@@ -8,7 +8,7 @@ datasource db {
 }
 
 model AccountRequest {
-  id             String    @id @default(uuid())
+  id             String    @unique
   name           String
   companyName    String
   companyType    String
@@ -24,11 +24,12 @@ model AccountRequest {
   createdAt      DateTime? @default(now())
   updatedAt      DateTime? @updatedAt
 
+  @@id([id])
   @@map("account_requests")
 }
 
 model Admin {
-  id    String @id @default(uuid())
+  id    String @unique
   name  String
   phone String @unique
 
@@ -37,11 +38,12 @@ model Admin {
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
 
+  @@id([id])
   @@map("admins")
 }
 
 model Customer {
-  id             String         @id @default(uuid())
+  id             String         @unique
   name           String
   companyName    String
   companyType    String
@@ -61,11 +63,12 @@ model Customer {
   orders        Order[]
   notifications CustomerNotification[]
 
+  @@id([id])
   @@map("customers")
 }
 
 model User {
-  id       String   @id
+  id       String   @unique
   username String   @unique
   email    String   @unique
   password String
@@ -80,11 +83,12 @@ model User {
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
 
+  @@id([id])
   @@map("users")
 }
 
 model Category {
-  id            String          @id @default(uuid())
+  id            String          @unique
   title         String          @unique
   icon          String
   createdAt     DateTime?       @default(now())
@@ -93,11 +97,12 @@ model Category {
   products      Product[]
   brands        CategoryBrand[]
 
+  @@id([id])
   @@map("categories")
 }
 
 model SubCategory {
-  id         String    @id @default(uuid())
+  id         String    @unique
   title      String    @unique
   icon       String
   categoryId String
@@ -106,11 +111,12 @@ model SubCategory {
   updatedAt  DateTime? @updatedAt
   products   Product[]
 
+  @@id([id])
   @@map("sub_categories")
 }
 
 model Brand {
-  id         String          @id @default(uuid())
+  id         String          @unique
   title      String          @unique
   logo       String
   createdAt  DateTime?       @default(now())
@@ -118,6 +124,7 @@ model Brand {
   products   Product[]
   categories CategoryBrand[]
 
+  @@id([id])
   @@map("brands")
 }
 
@@ -132,7 +139,7 @@ model CategoryBrand {
 }
 
 model Product {
-  id            String        @id @default(uuid())
+  id            String        @unique
   title         String
   image         String
   netWeight     String
@@ -149,11 +156,12 @@ model Product {
   updatedAt     DateTime?     @updatedAt
   orders        OrderItem[]
 
+  @@id([id])
   @@map("products")
 }
 
 model Order {
-  id         String      @id @default(uuid())
+  id         String      @unique
   customerId String
   customer   Customer    @relation(fields: [customerId], references: [id], map: "order_customer_id")
   status     OrderStatus @default(requestQuotation)
@@ -164,6 +172,7 @@ model Order {
   updatedAt DateTime?   @updatedAt
   products  OrderItem[]
 
+  @@id([id])
   @@map("orders")
 }
 
@@ -182,7 +191,7 @@ model OrderItem {
 }
 
 model AdminNotification {
-  id        String                 @id @default(uuid())
+  id        Int                    @unique @default(autoincrement())
   title     String
   message   String
   type      AdminNotificationType?
@@ -191,11 +200,12 @@ model AdminNotification {
   createdAt DateTime?              @default(now())
   updatedAt DateTime?              @updatedAt
 
+  @@id([id])
   @@map("admin_notifications")
 }
 
 model CustomerNotification {
-  id         String                    @id @default(uuid())
+  id         Int                       @unique @default(autoincrement())
   customerId String
   customer   Customer                  @relation(fields: [customerId], references: [id], map: "customer_notification_customer_id")
   type       CustomerNotificationType?
@@ -207,6 +217,7 @@ model CustomerNotification {
   createdAt  DateTime?                 @default(now())
   updatedAt  DateTime?                 @updatedAt
 
+  @@id([id])
   @@map("user_notifications")
 }
 

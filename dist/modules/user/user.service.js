@@ -18,6 +18,7 @@ const prisma_helper_1 = __importDefault(require("../../helpers/prisma.helper"));
 const prismaClient_1 = __importDefault(require("../../shared/prismaClient"));
 const bcrypt_util_1 = require("../../utils/bcrypt.util");
 const customError_util_1 = __importDefault(require("../../utils/customError.util"));
+const generateId_util_1 = require("../../utils/generateId.util");
 const profile = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const include = user.role === client_1.UserRole.admin ? { admin: true } : { customer: true };
     const result = yield prismaClient_1.default.user.findUnique({
@@ -33,6 +34,13 @@ const profile = (user) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const createCustomer = (customerData, user) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        const latestPost = yield txc.user.findMany({
+            orderBy: { createdAt: "desc" },
+            take: 1,
+        });
+        const generatedId = (0, generateId_util_1.generateNewID)("U-", (_a = latestPost[0]) === null || _a === void 0 ? void 0 : _a.id);
+        customerData.id = generatedId;
         const customer = yield txc.customer.create({
             data: customerData,
         });
@@ -46,6 +54,13 @@ const createCustomer = (customerData, user) => __awaiter(void 0, void 0, void 0,
 });
 const createAdmin = (adminData, user) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
+        var _b;
+        const latestPost = yield txc.user.findMany({
+            orderBy: { createdAt: "desc" },
+            take: 1,
+        });
+        const generatedId = (0, generateId_util_1.generateNewID)("U-", (_b = latestPost[0]) === null || _b === void 0 ? void 0 : _b.id);
+        adminData.id = generatedId;
         const admin = yield txc.admin.create({
             data: adminData,
         });
@@ -59,18 +74,7 @@ const createAdmin = (adminData, user) => __awaiter(void 0, void 0, void 0, funct
 });
 const getCustomers = (queryFeatures) => __awaiter(void 0, void 0, void 0, function* () {
     const whereConditions = prisma_helper_1.default.findManyQueryHelper(queryFeatures, {
-        searchFields: [
-            "name",
-            "companyName",
-            "companyType",
-            "companyRegNo",
-            "companyDetails",
-            "taxNumber",
-            "address",
-            "city",
-            "country",
-            "phone",
-        ],
+        searchFields: ["name", "companyName", "companyType", "companyRegNo", "companyDetails", "taxNumber", "address", "city", "country", "phone"],
     });
     const query = {
         where: whereConditions,
@@ -78,8 +82,7 @@ const getCustomers = (queryFeatures) => __awaiter(void 0, void 0, void 0, functi
         take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
-    if (queryFeatures.populate &&
-        Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {
@@ -87,10 +90,7 @@ const getCustomers = (queryFeatures) => __awaiter(void 0, void 0, void 0, functi
             query.select = Object.assign({ id: true }, queryFeatures.fields);
         }
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([
-        prismaClient_1.default.customer.findMany(query),
-        prismaClient_1.default.customer.count({ where: whereConditions }),
-    ]);
+    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.customer.findMany(query), prismaClient_1.default.customer.count({ where: whereConditions })]);
     return {
         data: result,
         total: count,
@@ -106,8 +106,7 @@ const getAdmins = (queryFeatures) => __awaiter(void 0, void 0, void 0, function*
         take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
-    if (queryFeatures.populate &&
-        Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({}, queryFeatures.populate);
     }
     else {
@@ -115,10 +114,7 @@ const getAdmins = (queryFeatures) => __awaiter(void 0, void 0, void 0, function*
             query.select = Object.assign({ id: true }, queryFeatures.fields);
         }
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([
-        prismaClient_1.default.admin.findMany(query),
-        prismaClient_1.default.admin.count({ where: whereConditions }),
-    ]);
+    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.admin.findMany(query), prismaClient_1.default.admin.count({ where: whereConditions })]);
     return {
         data: result,
         total: count,
@@ -130,8 +126,7 @@ const getSingleCustomer = (id, queryFeatures) => __awaiter(void 0, void 0, void 
             id,
         },
     };
-    if (queryFeatures.populate &&
-        Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {

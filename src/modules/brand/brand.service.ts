@@ -5,11 +5,22 @@ import {
   IQueryResult,
 } from "../../interfaces/queryFeatures.interface";
 import prisma from "../../shared/prismaClient";
+import { generateNewID } from "../../utils/generateId.util";
 
 const create = async (payload: Brand): Promise<Brand> => {
-  const result = await prisma.brand.create({
-    data: payload,
+  const result = await prisma.$transaction(async (txc) => {
+    const latestPost = await txc.brand.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 1,
+    });
+    const generatedId = generateNewID("B-", latestPost[0]?.id);
+    payload.id = generatedId;
+    const result = await txc.brand.create({
+      data: payload,
+    });
+    return result;
   });
+
   return result;
 };
 

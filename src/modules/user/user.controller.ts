@@ -22,7 +22,10 @@ const profile: RequestHandler = catchAsyncErrors(
 const createCustomer: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const { password, email, ...customerData } = req.body;
-    const username: string = email.split("@")[0];
+    const username: string =
+      email.split("@")[0] +
+      Math.floor(Math.random() * 10) +
+      Math.floor(Math.random() * 10);
     const userData = { password, email, username };
     const result = await userService.createCustomer(
       customerData,
@@ -40,7 +43,10 @@ const createCustomer: RequestHandler = catchAsyncErrors(
 const createAdmin: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const { password, email, ...adminData } = req.body;
-    const username: string = email.split("@")[0];
+    const username: string =
+      email.split("@")[0] +
+      Math.floor(Math.random() * 10) +
+      Math.floor(Math.random() * 10);
     const userData = { password, email, username, role: UserRole.admin };
     const result = await userService.createAdmin(adminData, userData as User);
     sendResponse<Admin>(res, {

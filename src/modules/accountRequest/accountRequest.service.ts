@@ -14,9 +14,17 @@ import {
 import prisma from "../../shared/prismaClient";
 import { hashPassword } from "../../utils/bcrypt.util";
 import AppError from "../../utils/customError.util";
+import { generateNewID } from "../../utils/generateId.util";
 
 const create = async (payload: AccountRequest): Promise<AccountRequest> => {
   const result = await prisma.$transaction(async (txc) => {
+    const latestPost = await txc.accountRequest.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 1,
+    });
+
+    payload.id = generateNewID("AR", latestPost[0]?.id);
+
     const result = await txc.accountRequest.create({
       data: payload,
     });
@@ -102,7 +110,10 @@ const acceptAccountRequest = async (
       throw new AppError("Account request not found", httpStatus.NOT_FOUND);
     }
 
-    const username = accountRequestData.email.split("@")[0];
+    const username =
+      accountRequestData.email.split("@")[0] +
+      Math.floor(Math.random() * 10) +
+      Math.floor(Math.random() * 10);
 
     const newUserData: Partial<User> = {
       email: accountRequestData.email,
@@ -111,7 +122,15 @@ const acceptAccountRequest = async (
 
     newUserData.password = await hashPassword(password);
 
+    const latestPost = await txc.user.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 1,
+    });
+
+    const generatedId = generateNewID("U-", latestPost[0]?.id);
+
     const newCustomerData = {
+      id: generatedId,
       name: accountRequestData.name,
       companyName: accountRequestData.companyName,
       companyType: accountRequestData.companyType,
