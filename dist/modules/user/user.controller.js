@@ -40,7 +40,9 @@ const profile = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void
 }));
 const createCustomer = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const _a = req.body, { password, email } = _a, customerData = __rest(_a, ["password", "email"]);
-    const username = email.split("@")[0] + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10);
+    const username = email.split("@")[0] +
+        Math.floor(Math.random() * 10) +
+        Math.floor(Math.random() * 10);
     const userData = { password, email, username };
     const result = yield user_service_1.default.createCustomer(customerData, userData);
     (0, sendResponse_util_1.default)(res, {
@@ -52,7 +54,9 @@ const createCustomer = (0, catchAsyncError_util_1.default)((req, res) => __await
 }));
 const createAdmin = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const _b = req.body, { password, email } = _b, adminData = __rest(_b, ["password", "email"]);
-    const username = email.split("@")[0] + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10);
+    const username = email.split("@")[0] +
+        Math.floor(Math.random() * 10) +
+        Math.floor(Math.random() * 10);
     const userData = { password, email, username, role: client_1.UserRole.admin };
     const result = yield user_service_1.default.createAdmin(adminData, userData);
     (0, sendResponse_util_1.default)(res, {

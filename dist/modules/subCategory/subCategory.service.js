@@ -44,7 +44,8 @@ const getSubCategories = (queryFeatures) => __awaiter(void 0, void 0, void 0, fu
         take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
-    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate &&
+        Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {
@@ -52,7 +53,10 @@ const getSubCategories = (queryFeatures) => __awaiter(void 0, void 0, void 0, fu
             query.select = Object.assign({ id: true }, queryFeatures.fields);
         }
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.subCategory.findMany(query), prismaClient_1.default.subCategory.count({ where: whereConditions })]);
+    const [result, count] = yield prismaClient_1.default.$transaction([
+        prismaClient_1.default.subCategory.findMany(query),
+        prismaClient_1.default.subCategory.count({ where: whereConditions }),
+    ]);
     return {
         data: result,
         total: count,
@@ -64,7 +68,8 @@ const getSingleSubCategory = (id, queryFeatures) => __awaiter(void 0, void 0, vo
             id,
         },
     };
-    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate &&
+        Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {

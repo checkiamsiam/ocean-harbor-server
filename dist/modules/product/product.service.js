@@ -74,7 +74,8 @@ const getProducts = (queryFeatures) => __awaiter(void 0, void 0, void 0, functio
         take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
-    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate &&
+        Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {
@@ -82,7 +83,10 @@ const getProducts = (queryFeatures) => __awaiter(void 0, void 0, void 0, functio
             query.select = Object.assign({ id: true }, queryFeatures.fields);
         }
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.product.findMany(query), prismaClient_1.default.product.count({ where: whereConditions })]);
+    const [result, count] = yield prismaClient_1.default.$transaction([
+        prismaClient_1.default.product.findMany(query),
+        prismaClient_1.default.product.count({ where: whereConditions }),
+    ]);
     return {
         data: result,
         total: count,
@@ -94,7 +98,8 @@ const getSingleProduct = (id, queryFeatures) => __awaiter(void 0, void 0, void 0
             id,
         },
     };
-    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate &&
+        Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {
