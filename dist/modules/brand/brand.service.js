@@ -41,7 +41,8 @@ const getBrands = (queryFeatures) => __awaiter(void 0, void 0, void 0, function*
         take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
-    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate &&
+        Object.keys(queryFeatures.populate).length > 0) {
         const queryFeaturePopulateCopy = Object.assign({}, queryFeatures.populate);
         if (queryFeatures.populate.categories) {
             queryFeaturePopulateCopy.categories = {
@@ -57,7 +58,10 @@ const getBrands = (queryFeatures) => __awaiter(void 0, void 0, void 0, function*
             query.select = Object.assign({ id: true }, queryFeatures.fields);
         }
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.brand.findMany(query), prismaClient_1.default.brand.count({ where: whereConditions })]);
+    const [result, count] = yield prismaClient_1.default.$transaction([
+        prismaClient_1.default.brand.findMany(query),
+        prismaClient_1.default.brand.count({ where: whereConditions }),
+    ]);
     return {
         data: result,
         total: count,
@@ -69,7 +73,8 @@ const getSingleBrand = (id, queryFeatures) => __awaiter(void 0, void 0, void 0, 
             id,
         },
     };
-    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate &&
+        Object.keys(queryFeatures.populate).length > 0) {
         const queryFeaturePopulateCopy = Object.assign({}, queryFeatures.populate);
         if (queryFeatures.populate.categories) {
             queryFeaturePopulateCopy.categories = {
