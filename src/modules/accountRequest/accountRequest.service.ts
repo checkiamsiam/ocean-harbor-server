@@ -15,31 +15,41 @@ import prisma from "../../shared/prismaClient";
 import { hashPassword } from "../../utils/bcrypt.util";
 import AppError from "../../utils/customError.util";
 import { generateNewID } from "../../utils/generateId.util";
+import sendEmail from "../../utils/sendMail.util";
 
 const create = async (payload: AccountRequest): Promise<AccountRequest> => {
-  const result = await prisma.$transaction(async (txc) => {
-    const latestPost = await txc.accountRequest.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 1,
-    });
+  const result = await prisma.$transaction(
+    async (txc) => {
+      const latestPost = await txc.accountRequest.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      });
 
-    payload.id = generateNewID("AR", latestPost[0]?.id);
+      payload.id = generateNewID("AR", latestPost[0]?.id);
 
-    const result = await txc.accountRequest.create({
-      data: payload,
-    });
+      const result = await txc.accountRequest.create({
+        data: payload,
+      });
 
-    await txc.adminNotification.create({
-      data: {
-        message: `New account request from ${payload.name}`,
-        type: AdminNotificationType.AccountRequest,
-        title: "New account request",
-        refId: result.id,
-      },
-    });
+      await txc.adminNotification.create({
+        data: {
+          message: `New account request from ${payload.name}`,
+          type: AdminNotificationType.AccountRequest,
+          title: "New account request",
+          refId: result.id,
+        },
+      });
 
-    return result;
-  });
+      await sendEmail({
+        to: "issiam02415@gmail.com",
+        subject: "New account request",
+        html: `<h1>New account request</h1>`,
+      });
+
+      return result;
+    },
+    { timeout: 10000 }
+  );
 
   return result;
 };

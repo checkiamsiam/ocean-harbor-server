@@ -9,6 +9,7 @@ import productRoutes from "./modules/product/product.route";
 import searchRoutes from "./modules/search/search.route";
 import subCategoryRoutes from "./modules/subCategory/subCategory.route";
 import userRoutes from "./modules/user/user.route";
+import uploadRoutes from "./modules/upload/upload.route";
 
 const router: Router = express.Router();
 
@@ -52,6 +53,10 @@ const routes: { path: string; route: Router }[] = [
   {
     path: "/notification",
     route: notificationRoutes,
+  },
+  {
+    path: "/upload",
+    route: uploadRoutes,
   },
 ];
 

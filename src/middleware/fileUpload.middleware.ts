@@ -15,7 +15,11 @@ const makeStorage = (folder: string) => {
   return new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-      public_id: () => `GA/${folder}/` + new Date().getTime(),
+      public_id: (req, file) =>
+        `GA/${folder}/` +
+        Math.floor(Math.random() * 10) +
+        Math.floor(Math.random() * 10) +
+        file.originalname.split(" ").join("-"),
     },
   });
 };
@@ -25,7 +29,8 @@ type TmimeTypes = "image/png" | "image/jpeg" | "image/jpg" | "application/pdf";
 const uploadToCloudinary = (
   fieldName: string,
   folderToUpload: string,
-  fileFilter: TmimeTypes[]
+  fileFilter: TmimeTypes[],
+  multiple = false
 ) => {
   const upload = multer({
     storage: makeStorage(folderToUpload),
@@ -38,6 +43,7 @@ const uploadToCloudinary = (
       }
     },
   });
+  if (multiple) return upload.array(fieldName);
   return upload.single(fieldName);
 };
 
