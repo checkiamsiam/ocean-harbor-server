@@ -9,12 +9,15 @@ const authorization_middleware_1 = __importDefault(require("../../middleware/aut
 const fileUpload_middleware_1 = __importDefault(require("../../middleware/fileUpload.middleware"));
 const queryFeatures_middleware_1 = __importDefault(require("../../middleware/queryFeatures.middleware"));
 const product_controller_1 = __importDefault(require("./product.controller"));
+const validateRequest_middleware_1 = __importDefault(require("../../middleware/validateRequest.middleware"));
+const product_validation_1 = __importDefault(require("./product.validation"));
 const productRoutes = express_1.default.Router();
 productRoutes.post("/create", (0, authorization_middleware_1.default)(client_1.UserRole.admin), (0, fileUpload_middleware_1.default)("image", "product", [
     "image/jpeg",
     "image/jpg",
     "image/png",
 ]), product_controller_1.default.createProduct);
+productRoutes.post("/bulk-create", (0, authorization_middleware_1.default)(client_1.UserRole.admin), (0, validateRequest_middleware_1.default)(product_validation_1.default.bulkCreate), product_controller_1.default.bulkCreate);
 productRoutes.get("/", (0, queryFeatures_middleware_1.default)("multiple"), product_controller_1.default.getCategories);
 productRoutes.get("/:id", (0, queryFeatures_middleware_1.default)("single"), product_controller_1.default.getSingleProduct);
 productRoutes.patch("/update/:id", (0, authorization_middleware_1.default)(client_1.UserRole.admin), (0, fileUpload_middleware_1.default)("image", "product", [

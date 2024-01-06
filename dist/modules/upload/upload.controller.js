@@ -24,7 +24,7 @@ const bulkUpload = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(v
     (0, sendResponse_util_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: "Profile get successfully",
+        message: "Files Uploaded successfully",
         data: files,
     });
 }));

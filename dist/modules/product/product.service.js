@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const http_status_1 = __importDefault(require("http-status"));
 const prisma_helper_1 = __importDefault(require("../../helpers/prisma.helper"));
 const prismaClient_1 = __importDefault(require("../../shared/prismaClient"));
+const asyncForEach_util_1 = require("../../utils/asyncForEach.util");
 const customError_util_1 = __importDefault(require("../../utils/customError.util"));
 const generateId_util_1 = require("../../utils/generateId.util");
 const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
@@ -33,7 +34,7 @@ const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
             throw new customError_util_1.default("Sub Category Is not available in that category", http_status_1.default.BAD_REQUEST);
         }
         const latestPost = yield txc.product.findMany({
-            orderBy: { createdAt: "desc" },
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
             take: 1,
         });
         const generatedId = (0, generateId_util_1.generateNewID)("P-", (_a = latestPost[0]) === null || _a === void 0 ? void 0 : _a.id);
@@ -59,6 +60,41 @@ const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     }));
     return result;
 });
+const bulkCreate = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const results = [];
+    yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
+        yield (0, asyncForEach_util_1.asyncForEach)(payload, (product) => __awaiter(void 0, void 0, void 0, function* () {
+            var _b;
+            const newProductBody = Object.assign({}, product);
+            const latestPost = yield txc.product.findMany({
+                orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+                take: 1,
+            });
+            const generatedId = (0, generateId_util_1.generateNewID)("P-", (_b = latestPost[0]) === null || _b === void 0 ? void 0 : _b.id);
+            newProductBody.id = generatedId;
+            console.log(newProductBody.id);
+            const newProduct = yield txc.product.create({
+                data: newProductBody,
+            });
+            const isCategoryBrandExist = yield txc.categoryBrand.findFirst({
+                where: {
+                    brandId: newProduct.brandId,
+                    categoryId: newProduct.categoryId,
+                },
+            });
+            if (!isCategoryBrandExist) {
+                yield txc.categoryBrand.create({
+                    data: {
+                        brandId: newProduct.brandId,
+                        categoryId: newProduct.categoryId,
+                    },
+                });
+            }
+            results.push(newProduct);
+        }));
+    }), { timeout: 100000 });
+    return results;
+});
 const getProducts = (queryFeatures) => __awaiter(void 0, void 0, void 0, function* () {
     const whereConditions = prisma_helper_1.default.findManyQueryHelper(queryFeatures, {
         searchFields: ["title"],
@@ -74,8 +110,7 @@ const getProducts = (queryFeatures) => __awaiter(void 0, void 0, void 0, functio
         take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
-    if (queryFeatures.populate &&
-        Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {
@@ -83,10 +118,7 @@ const getProducts = (queryFeatures) => __awaiter(void 0, void 0, void 0, functio
             query.select = Object.assign({ id: true }, queryFeatures.fields);
         }
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([
-        prismaClient_1.default.product.findMany(query),
-        prismaClient_1.default.product.count({ where: whereConditions }),
-    ]);
+    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.product.findMany(query), prismaClient_1.default.product.count({ where: whereConditions })]);
     return {
         data: result,
         total: count,
@@ -98,8 +130,7 @@ const getSingleProduct = (id, queryFeatures) => __awaiter(void 0, void 0, void 0
             id,
         },
     };
-    if (queryFeatures.populate &&
-        Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {
@@ -202,5 +233,6 @@ const productService = {
     getSingleProduct,
     update,
     deleteProduct,
+    bulkCreate,
 };
 exports.default = productService;

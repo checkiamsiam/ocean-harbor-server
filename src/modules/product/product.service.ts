@@ -6,6 +6,7 @@ import {
   IQueryResult,
 } from "../../interfaces/queryFeatures.interface";
 import prisma from "../../shared/prismaClient";
+import { asyncForEach } from "../../utils/asyncForEach.util";
 import AppError from "../../utils/customError.util";
 import { generateNewID } from "../../utils/generateId.util";
 
@@ -32,7 +33,7 @@ const create = async (payload: Product): Promise<Product> => {
     }
 
     const latestPost = await txc.product.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: 1,
     });
 
@@ -64,6 +65,53 @@ const create = async (payload: Product): Promise<Product> => {
   });
 
   return result;
+};
+
+const bulkCreate = async (payload: Product[]): Promise<Product[]> => {
+  const results: Product[] = [];
+  await prisma.$transaction(
+    async (txc) => {
+      await asyncForEach(payload, async (product: Product) => {
+        const newProductBody = { ...product };
+
+        const latestPost = await txc.product.findMany({
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+          take: 1,
+        });
+
+        const generatedId = generateNewID("P-", latestPost[0]?.id);
+
+        newProductBody.id = generatedId;
+
+        console.log(newProductBody.id);
+
+        const newProduct = await txc.product.create({
+          data: newProductBody,
+        });
+
+        const isCategoryBrandExist = await txc.categoryBrand.findFirst({
+          where: {
+            brandId: newProduct.brandId,
+            categoryId: newProduct.categoryId,
+          },
+        });
+
+        if (!isCategoryBrandExist) {
+          await txc.categoryBrand.create({
+            data: {
+              brandId: newProduct.brandId,
+              categoryId: newProduct.categoryId,
+            },
+          });
+        }
+
+        results.push(newProduct);
+      });
+    },
+    { timeout: 100000 }
+  );
+
+  return results;
 };
 
 const getProducts = async (
@@ -255,6 +303,7 @@ const productService = {
   getSingleProduct,
   update,
   deleteProduct,
+  bulkCreate,
 };
 
 export default productService;

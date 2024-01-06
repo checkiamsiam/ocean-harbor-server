@@ -35,6 +35,15 @@ const createProduct = (0, catchAsyncError_util_1.default)((req, res) => __awaite
         data: result,
     });
 }));
+const bulkCreate = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield product_service_1.default.bulkCreate(req.body);
+    (0, sendResponse_util_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Products created successfully",
+        data: result,
+    });
+}));
 const getCategories = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const getResult = yield product_service_1.default.getProducts(req.queryFeatures);
     (0, sendResponse_util_1.default)(res, {
@@ -96,5 +105,6 @@ const productController = {
     getSingleProduct,
     update,
     deleteProduct,
+    bulkCreate,
 };
 exports.default = productController;

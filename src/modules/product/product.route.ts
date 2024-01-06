@@ -4,6 +4,8 @@ import authorization from "../../middleware/authorization.middleware";
 import uploadToCloudinary from "../../middleware/fileUpload.middleware";
 import queryFeatures from "../../middleware/queryFeatures.middleware";
 import productController from "./product.controller";
+import validateRequest from "../../middleware/validateRequest.middleware";
+import productValidation from "./product.validation";
 
 const productRoutes: Router = express.Router();
 
@@ -16,6 +18,13 @@ productRoutes.post(
     "image/png",
   ]),
   productController.createProduct
+);
+
+productRoutes.post(
+  "/bulk-create",
+  authorization(UserRole.admin),
+  validateRequest(productValidation.bulkCreate),
+  productController.bulkCreate
 );
 
 productRoutes.get(
