@@ -18,7 +18,10 @@ const makeStorage = (folder) => {
     return new multer_storage_cloudinary_1.CloudinaryStorage({
         cloudinary: cloudinary_1.v2,
         params: {
-            public_id: (req, file) => `GA/${folder}/` + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + file.originalname.split(" ").join("-"),
+            public_id: (req, file) => `GA/${folder}/` +
+                Math.floor(Math.random() * 10) +
+                Math.floor(Math.random() * 10) +
+                file.originalname.split(" ").join("-"),
         },
     });
 };

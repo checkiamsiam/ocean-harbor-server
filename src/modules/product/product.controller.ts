@@ -28,6 +28,17 @@ const createProduct: RequestHandler = catchAsyncErrors(
     });
   }
 );
+const bulkCreate: RequestHandler = catchAsyncErrors(
+  async (req: Request, res: Response) => {
+    const result = await productService.bulkCreate(req.body);
+    sendResponse<Product[]>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Products created successfully",
+      data: result,
+    });
+  }
+);
 const getCategories: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const getResult = await productService.getProducts(req.queryFeatures);
@@ -110,5 +121,6 @@ const productController = {
   getSingleProduct,
   update,
   deleteProduct,
+  bulkCreate,
 };
 export default productController;

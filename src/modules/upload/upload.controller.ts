@@ -17,7 +17,7 @@ const bulkUpload: RequestHandler = catchAsyncErrors(
     sendResponse<any>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Profile get successfully",
+      message: "Files Uploaded successfully",
       data: files,
     });
   }
