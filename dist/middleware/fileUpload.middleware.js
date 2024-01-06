@@ -18,11 +18,11 @@ const makeStorage = (folder) => {
     return new multer_storage_cloudinary_1.CloudinaryStorage({
         cloudinary: cloudinary_1.v2,
         params: {
-            public_id: () => `GA/${folder}/` + new Date().getTime(),
+            public_id: (req, file) => `GA/${folder}/` + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + file.originalname.split(" ").join("-"),
         },
     });
 };
-const uploadToCloudinary = (fieldName, folderToUpload, fileFilter) => {
+const uploadToCloudinary = (fieldName, folderToUpload, fileFilter, multiple = false) => {
     const upload = (0, multer_1.default)({
         storage: makeStorage(folderToUpload),
         limits: { fileSize: 1024 * 1024 * 5 },
@@ -35,6 +35,8 @@ const uploadToCloudinary = (fieldName, folderToUpload, fileFilter) => {
             }
         },
     });
+    if (multiple)
+        return upload.array(fieldName);
     return upload.single(fieldName);
 };
 exports.default = uploadToCloudinary;

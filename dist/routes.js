@@ -14,6 +14,7 @@ const product_route_1 = __importDefault(require("./modules/product/product.route
 const search_route_1 = __importDefault(require("./modules/search/search.route"));
 const subCategory_route_1 = __importDefault(require("./modules/subCategory/subCategory.route"));
 const user_route_1 = __importDefault(require("./modules/user/user.route"));
+const upload_route_1 = __importDefault(require("./modules/upload/upload.route"));
 const router = express_1.default.Router();
 const routes = [
     {
@@ -55,6 +56,10 @@ const routes = [
     {
         path: "/notification",
         route: notification_route_1.default,
+    },
+    {
+        path: "/upload",
+        route: upload_route_1.default,
     },
 ];
 routes.forEach((route) => router.use(route.path, route.route));

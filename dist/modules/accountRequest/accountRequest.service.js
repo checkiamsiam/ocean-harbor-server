@@ -19,6 +19,7 @@ const prismaClient_1 = __importDefault(require("../../shared/prismaClient"));
 const bcrypt_util_1 = require("../../utils/bcrypt.util");
 const customError_util_1 = __importDefault(require("../../utils/customError.util"));
 const generateId_util_1 = require("../../utils/generateId.util");
+const sendMail_util_1 = __importDefault(require("../../utils/sendMail.util"));
 const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
@@ -38,8 +39,13 @@ const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
                 refId: result.id,
             },
         });
+        yield (0, sendMail_util_1.default)({
+            to: "issiam02415@gmail.com",
+            subject: "New account request",
+            html: `<h1>New account request</h1>`,
+        });
         return result;
-    }));
+    }), { timeout: 10000 });
     return result;
 });
 const getAccountRequests = (queryFeatures) => __awaiter(void 0, void 0, void 0, function* () {
@@ -55,10 +61,7 @@ const getAccountRequests = (queryFeatures) => __awaiter(void 0, void 0, void 0, 
     if (queryFeatures.fields && Object.keys(queryFeatures.fields).length > 0) {
         query.select = Object.assign({ id: true }, queryFeatures.fields);
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([
-        prismaClient_1.default.accountRequest.findMany(query),
-        prismaClient_1.default.accountRequest.count({ where: whereConditions }),
-    ]);
+    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.accountRequest.findMany(query), prismaClient_1.default.accountRequest.count({ where: whereConditions })]);
     return {
         data: result,
         total: count,
@@ -85,9 +88,7 @@ const acceptAccountRequest = (id, password) => __awaiter(void 0, void 0, void 0,
         if (!accountRequestData) {
             throw new customError_util_1.default("Account request not found", http_status_1.default.NOT_FOUND);
         }
-        const username = accountRequestData.email.split("@")[0] +
-            Math.floor(Math.random() * 10) +
-            Math.floor(Math.random() * 10);
+        const username = accountRequestData.email.split("@")[0] + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10);
         const newUserData = {
             email: accountRequestData.email,
             username,
