@@ -29,6 +29,14 @@ const getNotifications = (0, catchAsyncError_util_1.default)((req, res) => __awa
         },
     });
 }));
+const getUnreadCount = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const count = yield notification_service_1.default.getUnreadCount(req.user);
+    (0, sendResponse_util_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        data: { count },
+    });
+}));
 const markAsRead = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const getResult = yield notification_service_1.default.markAsRead(req.user, req.params.id);
     (0, sendResponse_util_1.default)(res, {
@@ -50,5 +58,6 @@ const notificationController = {
     getNotifications,
     markAsRead,
     markAllAsRead,
+    getUnreadCount,
 };
 exports.default = notificationController;

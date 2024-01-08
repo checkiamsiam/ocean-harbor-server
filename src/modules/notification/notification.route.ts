@@ -13,6 +13,12 @@ notificationRoutes.get(
   notificationController.getNotifications
 );
 
+notificationRoutes.get(
+  "/unread-count",
+  authorization(UserRole.admin, UserRole.customer),
+  notificationController.getUnreadCount
+);
+
 notificationRoutes.patch(
   "/read/:id",
   authorization(UserRole.admin, UserRole.customer),
