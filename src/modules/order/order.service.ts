@@ -101,9 +101,16 @@ const getOrders = async (
   queryFeatures: IQueryFeatures
 ): Promise<IQueryResult<Order>> => {
   const whereConditions: Prisma.OrderWhereInput = {
-    status: {
-      in: status,
-    },
+    AND: [
+      {
+        status: {
+          in: status,
+        },
+      },
+      {
+        ...queryFeatures.filters,
+      },
+    ],
   };
 
   const query: Prisma.OrderFindManyArgs = {
@@ -151,6 +158,9 @@ const getMyOrders = async (
         status: {
           in: status,
         },
+      },
+      {
+        ...queryFeatures.filters,
       },
     ],
   };
