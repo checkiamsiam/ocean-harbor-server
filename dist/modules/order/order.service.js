@@ -54,7 +54,7 @@ const requestQuotation = (authUserId, items) => __awaiter(void 0, void 0, void 0
         });
         yield txc.adminNotification.create({
             data: {
-                message: `New Quotation request from ${(_b = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _b === void 0 ? void 0 : _b.name}`,
+                message: `${(_b = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _b === void 0 ? void 0 : _b.name} asked for quotation For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
                 type: client_1.AdminNotificationType.quotationRequest,
                 title: "New Quotation request",
                 refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,
@@ -102,8 +102,7 @@ const getOrders = (status, queryFeatures) => __awaiter(void 0, void 0, void 0, f
         take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
-    if (queryFeatures.populate &&
-        Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {
@@ -111,10 +110,7 @@ const getOrders = (status, queryFeatures) => __awaiter(void 0, void 0, void 0, f
             query.select = Object.assign({ id: true }, queryFeatures.fields);
         }
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([
-        prismaClient_1.default.order.findMany(query),
-        prismaClient_1.default.order.count({ where: whereConditions }),
-    ]);
+    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.order.findMany(query), prismaClient_1.default.order.count({ where: whereConditions })]);
     return {
         data: result,
         total: count,
@@ -140,8 +136,7 @@ const getMyOrders = (status, authUserId, queryFeatures) => __awaiter(void 0, voi
         take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
-    if (queryFeatures.populate &&
-        Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {
@@ -149,10 +144,7 @@ const getMyOrders = (status, authUserId, queryFeatures) => __awaiter(void 0, voi
             query.select = Object.assign({ id: true }, queryFeatures.fields);
         }
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([
-        prismaClient_1.default.order.findMany(query),
-        prismaClient_1.default.order.count({ where: whereConditions }),
-    ]);
+    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.order.findMany(query), prismaClient_1.default.order.count({ where: whereConditions })]);
     return {
         data: result,
         total: count,
@@ -183,7 +175,7 @@ const quotationApprove = (id, quotationFilePath) => __awaiter(void 0, void 0, vo
         });
         yield txc.customerNotification.create({
             data: {
-                message: `Your quotation request is approved by admin`,
+                message: `Your quotation request for order id ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id} is approved`,
                 type: client_1.CustomerNotificationType.quotationApproved,
                 title: "Quotation request approved",
                 refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,
@@ -212,7 +204,7 @@ const updateOrderStatus = (id, payload) => __awaiter(void 0, void 0, void 0, fun
         if (payload.status === client_1.OrderStatus.spam) {
             yield txc.customerNotification.create({
                 data: {
-                    message: `Your Quotation is declined by admin`,
+                    message: `Quotation request for order id ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id} is declined`,
                     type: client_1.CustomerNotificationType.quotationDeclined,
                     title: "Quotation Request declined",
                     refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,
@@ -235,9 +227,7 @@ const confirmOrDeclineOrder = (id, authUserId, status) => __awaiter(void 0, void
                 id,
             },
         });
-        if (!order ||
-            order.status !== client_1.OrderStatus.quotationApproved ||
-            order.customerId !== authUserId) {
+        if (!order || order.status !== client_1.OrderStatus.quotationApproved || order.customerId !== authUserId) {
             throw new customError_util_1.default("Order you want to confirm/decline is not approved yet or already confirm or its to her/his order", http_status_1.default.NOT_FOUND);
         }
         const orderResponse = yield txc.order.update({
@@ -305,7 +295,7 @@ const invoiceUpload = (id, invoiceFilePath) => __awaiter(void 0, void 0, void 0,
         });
         yield txc.customerNotification.create({
             data: {
-                message: `Admin uploaded invoice for your order`,
+                message: `Invoice added for your order id ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
                 type: client_1.CustomerNotificationType.invoiceAdded,
                 title: "Invoice Added",
                 refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,

@@ -59,7 +59,7 @@ const requestQuotation = async (
 
     await txc.adminNotification.create({
       data: {
-        message: `New Quotation request from ${orderResponse?.customer?.name}`,
+        message: `${orderResponse?.customer?.name} asked for quotation For Order Id: ${orderResponse?.id}`,
         type: AdminNotificationType.quotationRequest,
         title: "New Quotation request",
         refId: orderResponse?.id,
@@ -229,7 +229,7 @@ const quotationApprove = async (
 
     await txc.customerNotification.create({
       data: {
-        message: `Your quotation request is approved by admin`,
+        message: `Your quotation request for order id ${orderResponse?.id} is approved`,
         type: CustomerNotificationType.quotationApproved,
         title: "Quotation request approved",
         refId: orderResponse?.id,
@@ -266,7 +266,7 @@ const updateOrderStatus = async (
     if (payload.status === OrderStatus.spam) {
       await txc.customerNotification.create({
         data: {
-          message: `Your Quotation is declined by admin`,
+          message: `Quotation request for order id ${orderResponse?.id} is declined`,
           type: CustomerNotificationType.quotationDeclined,
           title: "Quotation Request declined",
           refId: orderResponse?.id,
@@ -388,7 +388,7 @@ const invoiceUpload = async (
 
     await txc.customerNotification.create({
       data: {
-        message: `Admin uploaded invoice for your order`,
+        message: `Invoice added for your order id ${orderResponse?.id}`,
         type: CustomerNotificationType.invoiceAdded,
         title: "Invoice Added",
         refId: orderResponse?.id,

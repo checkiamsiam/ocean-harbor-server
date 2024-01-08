@@ -17,5 +17,15 @@ const config = {
         apiKey: process.env.CLOUDINARY_API_KEY || "",
         apiSecret: process.env.CLOUDINARY_API_SECRET || "",
     },
+    mailtrap: {
+        host: process.env.MAILTRAP_HOST || "",
+        port: process.env.MAILTRAP_PORT || "",
+        auth: {
+            user: process.env.MAILTRAP_USER || "",
+            pass: process.env.MAILTRAP_PASSWORD || "",
+        },
+        domain: process.env.MAILTRAP_DOMAIN || "",
+        sendingEmail: process.env.MAILTRAP_SENDING_EMAIL || "",
+    }
 };
 exports.default = config;

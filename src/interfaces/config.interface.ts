@@ -10,6 +10,16 @@ interface IConfig {
     apiKey: string;
     apiSecret: string;
   };
+  mailtrap: {
+    host: string;
+    port: string;
+    auth: {
+      user: string;
+      pass: string;
+    };
+    domain: string;
+    sendingEmail: string;
+  };
 }
 
 export default IConfig;

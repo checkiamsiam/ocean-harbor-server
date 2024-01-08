@@ -33,7 +33,7 @@ const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         });
         yield txc.adminNotification.create({
             data: {
-                message: `New account request from ${payload.name}`,
+                message: `New account request arrive for ${payload.name} from ${payload.email} `,
                 type: client_1.AdminNotificationType.AccountRequest,
                 title: "New account request",
                 refId: result.id,
@@ -61,10 +61,7 @@ const getAccountRequests = (queryFeatures) => __awaiter(void 0, void 0, void 0, 
     if (queryFeatures.fields && Object.keys(queryFeatures.fields).length > 0) {
         query.select = Object.assign({ id: true }, queryFeatures.fields);
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([
-        prismaClient_1.default.accountRequest.findMany(query),
-        prismaClient_1.default.accountRequest.count({ where: whereConditions }),
-    ]);
+    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.accountRequest.findMany(query), prismaClient_1.default.accountRequest.count({ where: whereConditions })]);
     return {
         data: result,
         total: count,
@@ -91,9 +88,7 @@ const acceptAccountRequest = (id, password) => __awaiter(void 0, void 0, void 0,
         if (!accountRequestData) {
             throw new customError_util_1.default("Account request not found", http_status_1.default.NOT_FOUND);
         }
-        const username = accountRequestData.email.split("@")[0] +
-            Math.floor(Math.random() * 10) +
-            Math.floor(Math.random() * 10);
+        const username = accountRequestData.email.split("@")[0] + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10);
         const newUserData = {
             email: accountRequestData.email,
             username,

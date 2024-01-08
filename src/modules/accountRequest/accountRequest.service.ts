@@ -33,7 +33,7 @@ const create = async (payload: AccountRequest): Promise<AccountRequest> => {
 
       await txc.adminNotification.create({
         data: {
-          message: `New account request from ${payload.name}`,
+          message: `New account request arrive for ${payload.name} from ${payload.email} `,
           type: AdminNotificationType.AccountRequest,
           title: "New account request",
           refId: result.id,
