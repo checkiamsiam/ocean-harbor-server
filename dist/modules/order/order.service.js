@@ -87,9 +87,14 @@ const getSingleOrder = (id) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const getOrders = (status, queryFeatures) => __awaiter(void 0, void 0, void 0, function* () {
     const whereConditions = {
-        status: {
-            in: status,
-        },
+        AND: [
+            {
+                status: {
+                    in: status,
+                },
+            },
+            Object.assign({}, queryFeatures.filters),
+        ],
     };
     const query = {
         where: whereConditions,
@@ -97,8 +102,7 @@ const getOrders = (status, queryFeatures) => __awaiter(void 0, void 0, void 0, f
         take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
-    if (queryFeatures.populate &&
-        Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {
@@ -106,10 +110,7 @@ const getOrders = (status, queryFeatures) => __awaiter(void 0, void 0, void 0, f
             query.select = Object.assign({ id: true }, queryFeatures.fields);
         }
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([
-        prismaClient_1.default.order.findMany(query),
-        prismaClient_1.default.order.count({ where: whereConditions }),
-    ]);
+    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.order.findMany(query), prismaClient_1.default.order.count({ where: whereConditions })]);
     return {
         data: result,
         total: count,
@@ -126,6 +127,7 @@ const getMyOrders = (status, authUserId, queryFeatures) => __awaiter(void 0, voi
                     in: status,
                 },
             },
+            Object.assign({}, queryFeatures.filters),
         ],
     };
     const query = {
@@ -134,8 +136,7 @@ const getMyOrders = (status, authUserId, queryFeatures) => __awaiter(void 0, voi
         take: queryFeatures.limit || undefined,
         orderBy: queryFeatures.sort,
     };
-    if (queryFeatures.populate &&
-        Object.keys(queryFeatures.populate).length > 0) {
+    if (queryFeatures.populate && Object.keys(queryFeatures.populate).length > 0) {
         query.include = Object.assign({ _count: true }, queryFeatures.populate);
     }
     else {
@@ -143,10 +144,7 @@ const getMyOrders = (status, authUserId, queryFeatures) => __awaiter(void 0, voi
             query.select = Object.assign({ id: true }, queryFeatures.fields);
         }
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([
-        prismaClient_1.default.order.findMany(query),
-        prismaClient_1.default.order.count({ where: whereConditions }),
-    ]);
+    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.order.findMany(query), prismaClient_1.default.order.count({ where: whereConditions })]);
     return {
         data: result,
         total: count,
@@ -229,9 +227,7 @@ const confirmOrDeclineOrder = (id, authUserId, status) => __awaiter(void 0, void
                 id,
             },
         });
-        if (!order ||
-            order.status !== client_1.OrderStatus.quotationApproved ||
-            order.customerId !== authUserId) {
+        if (!order || order.status !== client_1.OrderStatus.quotationApproved || order.customerId !== authUserId) {
             throw new customError_util_1.default("Order you want to confirm/decline is not approved yet or already confirm or its to her/his order", http_status_1.default.NOT_FOUND);
         }
         const orderResponse = yield txc.order.update({
