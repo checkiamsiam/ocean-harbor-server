@@ -48,6 +48,26 @@ const getNotifications = (user, queryFeatures) => __awaiter(void 0, void 0, void
         };
     }
 });
+const getUnreadCount = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    if (user.role === client_1.UserRole.admin) {
+        const count = yield prismaClient_1.default.adminNotification.count({
+            where: {
+                read: false,
+            },
+        });
+        return count;
+    }
+    else {
+        const whereConditions = {
+            customerId: user.userId,
+            read: false,
+        };
+        const count = yield prismaClient_1.default.customerNotification.count({
+            where: whereConditions,
+        });
+        return count;
+    }
+});
 const markAsRead = (user, id) => __awaiter(void 0, void 0, void 0, function* () {
     if (user.role === client_1.UserRole.admin) {
         const result = yield prismaClient_1.default.adminNotification.update({
@@ -96,5 +116,6 @@ const notificationService = {
     getNotifications,
     markAsRead,
     markAllAsRead,
+    getUnreadCount,
 };
 exports.default = notificationService;
