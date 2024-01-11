@@ -19,6 +19,7 @@ const prismaClient_1 = __importDefault(require("../../shared/prismaClient"));
 const bcrypt_util_1 = require("../../utils/bcrypt.util");
 const customError_util_1 = __importDefault(require("../../utils/customError.util"));
 const generateId_util_1 = require("../../utils/generateId.util");
+const sendMail_util_1 = __importDefault(require("../../utils/sendMail.util"));
 const profile = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const include = user.role === client_1.UserRole.admin ? { admin: true } : { customer: true };
     const result = yield prismaClient_1.default.user.findUnique({
@@ -48,8 +49,23 @@ const createCustomer = (customerData, user) => __awaiter(void 0, void 0, void 0,
         yield txc.user.create({
             data: Object.assign(Object.assign({}, user), { id: customer.id, customerId: customer.id }),
         });
+        yield (0, sendMail_util_1.default)({
+            to: user === null || user === void 0 ? void 0 : user.email,
+            subject: "New Account Created",
+            html: `
+    <h3>New Account Created</h3>
+    <p>Hi, ${customer.name}</p>
+    <p>Your account has been created successfully</p>
+    <p>User Id: ${user === null || user === void 0 ? void 0 : user.id}</p>
+    <p>Username: ${user === null || user === void 0 ? void 0 : user.username}</p>
+    <p>Email: ${user === null || user === void 0 ? void 0 : user.email}</p>
+    <p>Password: ${user === null || user === void 0 ? void 0 : user.password}</p>
+    <p>Please login to your account</p>
+    <p>Thank you</p>
+    `,
+        });
         return customer;
-    }));
+    }), { timeout: 20000 });
     return result;
 });
 const createAdmin = (adminData, user) => __awaiter(void 0, void 0, void 0, function* () {
@@ -168,14 +184,27 @@ const updateCustomer = (id, customerData, user) => __awaiter(void 0, void 0, voi
         if (user.password) {
             user.password = yield (0, bcrypt_util_1.hashPassword)(user.password);
         }
-        yield txc.user.update({
+        const updatedUser = yield txc.user.update({
             where: {
                 id,
             },
             data: Object.assign({}, user),
         });
+        yield (0, sendMail_util_1.default)({
+            to: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.email,
+            subject: "Account Updated",
+            html: `
+      <h3>Account Updated</h3>
+      <p>Hi, ${customer.name}</p>
+      <p>Your account has been updated</p>
+      <p>Email: ${updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.email}</p>
+      <p>Password: ${updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.password}</p>
+      <p>Please login to view your updated account</p>
+      <p>Thank you</p>
+      `,
+        });
         return customer;
-    }));
+    }), { timeout: 20000 });
     return result;
 });
 const userService = {

@@ -20,6 +20,7 @@ interface IConfig {
     domain: string;
     sendingEmail: string;
   };
+  adminEmail: string;
 }
 
 export default IConfig;

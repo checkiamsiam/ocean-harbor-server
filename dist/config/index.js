@@ -26,6 +26,7 @@ const config = {
         },
         domain: process.env.MAILTRAP_DOMAIN || "",
         sendingEmail: process.env.MAILTRAP_SENDING_EMAIL || "",
-    }
+    },
+    adminEmail: process.env.ADMIN_EMAIL || "",
 };
 exports.default = config;

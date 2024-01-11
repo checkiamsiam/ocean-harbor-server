@@ -20,6 +20,7 @@ const bcrypt_util_1 = require("../../utils/bcrypt.util");
 const customError_util_1 = __importDefault(require("../../utils/customError.util"));
 const generateId_util_1 = require("../../utils/generateId.util");
 const sendMail_util_1 = __importDefault(require("../../utils/sendMail.util"));
+const config_1 = __importDefault(require("../../config"));
 const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
@@ -40,12 +41,18 @@ const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
             },
         });
         yield (0, sendMail_util_1.default)({
-            to: "issiam02415@gmail.com",
+            to: config_1.default.adminEmail,
             subject: "New account request",
-            html: `<h1>New account request</h1>`,
+            html: `
+        <h3>New account request</h3>
+        <p>Hi, Admin</p>
+        <p>There is a New account request arrive for <b> ${payload.name} </b> from ${payload.email}</p>
+        <p>Please check your admin panel</p>
+        <p>Thank you</p>
+        `,
         });
         return result;
-    }), { timeout: 10000 });
+    }), { timeout: 20000 });
     return result;
 });
 const getAccountRequests = (queryFeatures) => __awaiter(void 0, void 0, void 0, function* () {
@@ -61,7 +68,10 @@ const getAccountRequests = (queryFeatures) => __awaiter(void 0, void 0, void 0, 
     if (queryFeatures.fields && Object.keys(queryFeatures.fields).length > 0) {
         query.select = Object.assign({ id: true }, queryFeatures.fields);
     }
-    const [result, count] = yield prismaClient_1.default.$transaction([prismaClient_1.default.accountRequest.findMany(query), prismaClient_1.default.accountRequest.count({ where: whereConditions })]);
+    const [result, count] = yield prismaClient_1.default.$transaction([
+        prismaClient_1.default.accountRequest.findMany(query),
+        prismaClient_1.default.accountRequest.count({ where: whereConditions }),
+    ]);
     return {
         data: result,
         total: count,
@@ -88,7 +98,9 @@ const acceptAccountRequest = (id, password) => __awaiter(void 0, void 0, void 0,
         if (!accountRequestData) {
             throw new customError_util_1.default("Account request not found", http_status_1.default.NOT_FOUND);
         }
-        const username = accountRequestData.email.split("@")[0] + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10);
+        const username = accountRequestData.email.split("@")[0] +
+            Math.floor(Math.random() * 10) +
+            Math.floor(Math.random() * 10);
         const newUserData = {
             email: accountRequestData.email,
             username,
@@ -117,11 +129,26 @@ const acceptAccountRequest = (id, password) => __awaiter(void 0, void 0, void 0,
         });
         newUserData.customerId = customer.id;
         newUserData.id = customer.id;
-        yield txc.user.create({
+        const user = yield txc.user.create({
             data: Object.assign({}, newUserData),
         });
+        yield (0, sendMail_util_1.default)({
+            to: user === null || user === void 0 ? void 0 : user.email,
+            subject: "Account request Approved",
+            html: `
+      <h3>Account request Approved</h3>
+      <p>Hi, ${customer.name}</p>
+      <p>Your account request has been approved</p>
+      <p>User Id: ${user === null || user === void 0 ? void 0 : user.id}</p>
+      <p>Username: ${user === null || user === void 0 ? void 0 : user.username}</p>
+      <p>Email: ${user === null || user === void 0 ? void 0 : user.email}</p>
+      <p>Password: ${password}</p>
+      <p>Please login to your account</p>
+      <p>Thank you</p>
+      `,
+        });
         return customer;
-    }));
+    }), { timeout: 20000 });
     return customer;
 });
 const deleteAccountRequest = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -130,6 +157,22 @@ const deleteAccountRequest = (id) => __awaiter(void 0, void 0, void 0, function*
             id,
         },
     });
+    if (result) {
+        yield (0, sendMail_util_1.default)({
+            to: result === null || result === void 0 ? void 0 : result.email,
+            subject: "Account request Declined",
+            html: `
+    <h3>Account request Declined</h3>
+    <p>Hi, ${result.name}</p>
+    <p>Your account request has been Declined</p>
+    <p>Please contact us for more information</p>
+    <p>Thank you</p>
+    `,
+        });
+    }
+    else {
+        throw new customError_util_1.default("Account request not found", http_status_1.default.NOT_FOUND);
+    }
     return result;
 });
 const accountReqService = {
