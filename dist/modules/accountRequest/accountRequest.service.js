@@ -20,6 +20,7 @@ const bcrypt_util_1 = require("../../utils/bcrypt.util");
 const customError_util_1 = __importDefault(require("../../utils/customError.util"));
 const generateId_util_1 = require("../../utils/generateId.util");
 const sendMail_util_1 = __importDefault(require("../../utils/sendMail.util"));
+const config_1 = __importDefault(require("../../config"));
 const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
@@ -33,19 +34,25 @@ const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         });
         yield txc.adminNotification.create({
             data: {
-                message: `New account request from ${payload.name}`,
+                message: `New account request arrive for ${payload.name} from ${payload.email} `,
                 type: client_1.AdminNotificationType.AccountRequest,
                 title: "New account request",
                 refId: result.id,
             },
         });
         yield (0, sendMail_util_1.default)({
-            to: "issiam02415@gmail.com",
+            to: config_1.default.adminEmail,
             subject: "New account request",
-            html: `<h1>New account request</h1>`,
+            html: `
+        <h3>New account request</h3>
+        <p>Hi, Admin</p>
+        <p>There is a New account request arrive for <b> ${payload.name} </b> from ${payload.email}</p>
+        <p>Please check your admin panel</p>
+        <p>Thank you</p>
+        `,
         });
         return result;
-    }), { timeout: 10000 });
+    }), { timeout: 20000 });
     return result;
 });
 const getAccountRequests = (queryFeatures) => __awaiter(void 0, void 0, void 0, function* () {
@@ -122,11 +129,26 @@ const acceptAccountRequest = (id, password) => __awaiter(void 0, void 0, void 0,
         });
         newUserData.customerId = customer.id;
         newUserData.id = customer.id;
-        yield txc.user.create({
+        const user = yield txc.user.create({
             data: Object.assign({}, newUserData),
         });
+        yield (0, sendMail_util_1.default)({
+            to: user === null || user === void 0 ? void 0 : user.email,
+            subject: "Account request Approved",
+            html: `
+      <h3>Account request Approved</h3>
+      <p>Hi, ${customer.name}</p>
+      <p>Your account request has been approved</p>
+      <p>User Id: ${user === null || user === void 0 ? void 0 : user.id}</p>
+      <p>Username: ${user === null || user === void 0 ? void 0 : user.username}</p>
+      <p>Email: ${user === null || user === void 0 ? void 0 : user.email}</p>
+      <p>Password: ${password}</p>
+      <p>Please login to your account</p>
+      <p>Thank you</p>
+      `,
+        });
         return customer;
-    }));
+    }), { timeout: 20000 });
     return customer;
 });
 const deleteAccountRequest = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -135,6 +157,22 @@ const deleteAccountRequest = (id) => __awaiter(void 0, void 0, void 0, function*
             id,
         },
     });
+    if (result) {
+        yield (0, sendMail_util_1.default)({
+            to: result === null || result === void 0 ? void 0 : result.email,
+            subject: "Account request Declined",
+            html: `
+    <h3>Account request Declined</h3>
+    <p>Hi, ${result.name}</p>
+    <p>Your account request has been Declined</p>
+    <p>Please contact us for more information</p>
+    <p>Thank you</p>
+    `,
+        });
+    }
+    else {
+        throw new customError_util_1.default("Account request not found", http_status_1.default.NOT_FOUND);
+    }
     return result;
 });
 const accountReqService = {

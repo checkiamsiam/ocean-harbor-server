@@ -14,12 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
 const http_status_1 = __importDefault(require("http-status"));
+const config_1 = __importDefault(require("../../config"));
 const prismaClient_1 = __importDefault(require("../../shared/prismaClient"));
 const customError_util_1 = __importDefault(require("../../utils/customError.util"));
 const generateId_util_1 = require("../../utils/generateId.util");
+const sendMail_util_1 = __importDefault(require("../../utils/sendMail.util"));
 const requestQuotation = (authUserId, items) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a, _b;
+        var _a, _b, _c;
         const latestPost = yield txc.order.findMany({
             orderBy: { createdAt: "desc" },
             take: 1,
@@ -54,14 +56,25 @@ const requestQuotation = (authUserId, items) => __awaiter(void 0, void 0, void 0
         });
         yield txc.adminNotification.create({
             data: {
-                message: `New Quotation request from ${(_b = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _b === void 0 ? void 0 : _b.name}`,
+                message: `${(_b = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _b === void 0 ? void 0 : _b.name} asked for quotation For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
                 type: client_1.AdminNotificationType.quotationRequest,
                 title: "New Quotation request",
                 refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,
             },
         });
+        yield (0, sendMail_util_1.default)({
+            to: config_1.default.adminEmail,
+            subject: "New Quotation request",
+            html: `
+      <h3>New Quotation request</h3>
+      <p>Hi, Admin</p>
+      <p>${(_c = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _c === void 0 ? void 0 : _c.name} asked quotation For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}</p>
+      <p>Please check your admin panel</p>
+      <p>Thank you</p>
+      `,
+        });
         return orderResponse;
-    }));
+    }), { timeout: 20000 });
     if (!result) {
         throw new customError_util_1.default("Order not created", http_status_1.default.INTERNAL_SERVER_ERROR);
     }
@@ -160,6 +173,7 @@ const getMyOrders = (status, authUserId, queryFeatures) => __awaiter(void 0, voi
 });
 const quotationApprove = (id, quotationFilePath) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
+        var _d, _e, _f;
         const order = yield txc.order.findUnique({
             where: {
                 id,
@@ -179,19 +193,36 @@ const quotationApprove = (id, quotationFilePath) => __awaiter(void 0, void 0, vo
             include: {
                 _count: true,
                 products: true,
+                customer: {
+                    include: {
+                        user: true,
+                    },
+                },
             },
         });
         yield txc.customerNotification.create({
             data: {
-                message: `Your quotation request is approved by admin`,
+                message: `Your quotation request for order id ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id} is approved`,
                 type: client_1.CustomerNotificationType.quotationApproved,
                 title: "Quotation request approved",
                 refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,
                 customerId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customerId,
             },
         });
+        yield (0, sendMail_util_1.default)({
+            to: (_e = (_d = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _d === void 0 ? void 0 : _d.user) === null || _e === void 0 ? void 0 : _e.email,
+            subject: "Quotation request approved",
+            html: `
+    <h3>Quotation request approved</h3>
+    <p>Hi, ${(_f = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _f === void 0 ? void 0 : _f.name}</p>
+    <p>Your quotation request for order id ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id} has been approved</p>
+    <p>Please check your account</p>
+    <p>Thank you</p>
+    `,
+            attachments: [{ filename: "quotation.pdf", path: quotationFilePath }],
+        });
         return orderResponse;
-    }));
+    }), { timeout: 20000 });
     if (!result) {
         throw new customError_util_1.default("Order not updated", http_status_1.default.INTERNAL_SERVER_ERROR);
     }
@@ -199,6 +230,7 @@ const quotationApprove = (id, quotationFilePath) => __awaiter(void 0, void 0, vo
 });
 const updateOrderStatus = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
+        var _g, _h, _j, _k, _l, _m;
         const orderResponse = yield txc.order.update({
             where: {
                 id,
@@ -207,21 +239,50 @@ const updateOrderStatus = (id, payload) => __awaiter(void 0, void 0, void 0, fun
             include: {
                 _count: true,
                 products: true,
+                customer: {
+                    include: {
+                        user: true,
+                    },
+                },
             },
         });
         if (payload.status === client_1.OrderStatus.spam) {
             yield txc.customerNotification.create({
                 data: {
-                    message: `Your Quotation is declined by admin`,
+                    message: `Quotation request for order id ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id} is declined`,
                     type: client_1.CustomerNotificationType.quotationDeclined,
                     title: "Quotation Request declined",
                     refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,
                     customerId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customerId,
                 },
             });
+            yield (0, sendMail_util_1.default)({
+                to: (_h = (_g = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _g === void 0 ? void 0 : _g.user) === null || _h === void 0 ? void 0 : _h.email,
+                subject: "Quotation Request declined",
+                html: `
+    <h3>Quotation Request declined</h3>
+    <p>Hi, ${(_j = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _j === void 0 ? void 0 : _j.name}</p>
+    <p>Quotation request for order id ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id} is declined</p>
+    <p>Please contact us for more information</p>
+    <p>Thank you</p>
+    `,
+            });
+        }
+        else {
+            yield (0, sendMail_util_1.default)({
+                to: (_l = (_k = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _k === void 0 ? void 0 : _k.user) === null || _l === void 0 ? void 0 : _l.email,
+                subject: "Order Status Updated",
+                html: `
+    <h3>Order Status Updated</h3>
+    <p>Hi, ${(_m = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _m === void 0 ? void 0 : _m.name}</p>
+    <p>Order status for order id ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id} is now ${payload.status}</p>
+    <p>Please contact us for more information</p>
+    <p>Thank you</p>
+    `,
+            });
         }
         return orderResponse;
-    }));
+    }), { timeout: 20000 });
     if (!result) {
         throw new customError_util_1.default("Order not updated", http_status_1.default.INTERNAL_SERVER_ERROR);
     }
@@ -229,7 +290,7 @@ const updateOrderStatus = (id, payload) => __awaiter(void 0, void 0, void 0, fun
 });
 const confirmOrDeclineOrder = (id, authUserId, status) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
-        var _c, _d;
+        var _o, _p, _q, _r;
         const order = yield txc.order.findUnique({
             where: {
                 id,
@@ -256,25 +317,47 @@ const confirmOrDeclineOrder = (id, authUserId, status) => __awaiter(void 0, void
         if (status === client_1.OrderStatus.ordered) {
             yield txc.adminNotification.create({
                 data: {
-                    message: `${(_c = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _c === void 0 ? void 0 : _c.name} confirmed the order For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
+                    message: `${(_o = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _o === void 0 ? void 0 : _o.name} confirmed the order For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
                     type: client_1.AdminNotificationType.confirmOrder,
                     title: "Order confirmed",
                     refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,
                 },
             });
+            yield (0, sendMail_util_1.default)({
+                to: config_1.default.adminEmail,
+                subject: "Order confirmed",
+                html: `
+        <h3>Order confirmed</h3>
+        <p>Hi, Admin</p>
+        <p>${(_p = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _p === void 0 ? void 0 : _p.name} confirmed the order For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}</p>
+        <p>Please check your admin panel</p>
+        <p>Thank you</p>
+        `,
+            });
         }
         if (status === client_1.OrderStatus.declined) {
             yield txc.adminNotification.create({
                 data: {
-                    message: `${(_d = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _d === void 0 ? void 0 : _d.name} declined the order For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
+                    message: `${(_q = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _q === void 0 ? void 0 : _q.name} declined the order For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
                     type: client_1.AdminNotificationType.declineOrder,
                     title: "Order declined",
                     refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,
                 },
             });
+            yield (0, sendMail_util_1.default)({
+                to: config_1.default.adminEmail,
+                subject: "Order declined",
+                html: `
+        <h3>Order declined</h3>
+        <p>Hi, Admin</p>
+        <p>${(_r = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _r === void 0 ? void 0 : _r.name} declined the order For Order Id: ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}</p>
+        <p>Please check your admin panel</p>
+        <p>Thank you</p>
+        `,
+            });
         }
         return orderResponse;
-    }));
+    }), { timeout: 20000 });
     if (!result) {
         throw new customError_util_1.default("Order not updated", http_status_1.default.INTERNAL_SERVER_ERROR);
     }
@@ -282,6 +365,7 @@ const confirmOrDeclineOrder = (id, authUserId, status) => __awaiter(void 0, void
 });
 const invoiceUpload = (id, invoiceFilePath) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
+        var _s, _t, _u;
         const order = yield txc.order.findUnique({
             where: {
                 id,
@@ -301,19 +385,36 @@ const invoiceUpload = (id, invoiceFilePath) => __awaiter(void 0, void 0, void 0,
             include: {
                 _count: true,
                 products: true,
+                customer: {
+                    include: {
+                        user: true,
+                    },
+                },
             },
         });
         yield txc.customerNotification.create({
             data: {
-                message: `Admin uploaded invoice for your order`,
+                message: `Invoice added for your order id ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
                 type: client_1.CustomerNotificationType.invoiceAdded,
                 title: "Invoice Added",
                 refId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id,
                 customerId: orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customerId,
             },
         });
+        yield (0, sendMail_util_1.default)({
+            to: (_t = (_s = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _s === void 0 ? void 0 : _s.user) === null || _t === void 0 ? void 0 : _t.email,
+            subject: `Invoice Added - ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}`,
+            html: `
+  <h3>Invoice Added</h3>
+  <p>Hi, ${(_u = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _u === void 0 ? void 0 : _u.name}</p>
+  <p>Invoice added for your order id ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}</p>
+  <p>Please check your account</p>
+  <p>Thank you</p>
+  `,
+            attachments: [{ filename: "quotation.pdf", path: invoiceFilePath }],
+        });
         return orderResponse;
-    }));
+    }), { timeout: 20000 });
     if (!result) {
         throw new customError_util_1.default("Order not updated", http_status_1.default.INTERNAL_SERVER_ERROR);
     }

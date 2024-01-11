@@ -10,6 +10,7 @@ import prisma from "../../shared/prismaClient";
 import { hashPassword } from "../../utils/bcrypt.util";
 import AppError from "../../utils/customError.util";
 import { generateNewID } from "../../utils/generateId.util";
+import sendEmail from "../../utils/sendMail.util";
 
 const profile = async (user: JwtPayload): Promise<User> => {
   const include =
@@ -34,30 +35,49 @@ const createCustomer = async (
   customerData: Customer,
   user: User
 ): Promise<Customer | null> => {
-  const result = await prisma.$transaction(async (txc) => {
-    const latestPost = await txc.user.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 1,
-    });
+  const result = await prisma.$transaction(
+    async (txc) => {
+      const latestPost = await txc.user.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      });
 
-    const generatedId = generateNewID("U-", latestPost[0]?.id);
+      const generatedId = generateNewID("U-", latestPost[0]?.id);
 
-    customerData.id = generatedId;
+      customerData.id = generatedId;
 
-    const customer = await txc.customer.create({
-      data: customerData,
-    });
-    user.password = await hashPassword(user.password);
-    await txc.user.create({
-      data: {
-        ...user,
-        id: customer.id,
-        customerId: customer.id,
-      },
-    });
+      const customer = await txc.customer.create({
+        data: customerData,
+      });
+      user.password = await hashPassword(user.password);
+      await txc.user.create({
+        data: {
+          ...user,
+          id: customer.id,
+          customerId: customer.id,
+        },
+      });
 
-    return customer;
-  });
+      await sendEmail({
+        to: user?.email,
+        subject: "New Account Created",
+        html: `
+    <h3>New Account Created</h3>
+    <p>Hi, ${customer.name}</p>
+    <p>Your account has been created successfully</p>
+    <p>User Id: ${user?.id}</p>
+    <p>Username: ${user?.username}</p>
+    <p>Email: ${user?.email}</p>
+    <p>Password: ${user?.password}</p>
+    <p>Please login to your account</p>
+    <p>Thank you</p>
+    `,
+      });
+
+      return customer;
+    },
+    { timeout: 20000 }
+  );
 
   return result;
 };
@@ -216,29 +236,46 @@ const updateCustomer = async (
   customerData: Partial<Customer>,
   user: Partial<User>
 ): Promise<Customer | null> => {
-  const result = await prisma.$transaction(async (txc) => {
-    const customer = await txc.customer.update({
-      where: {
-        id,
-      },
-      data: {
-        ...customerData,
-      },
-    });
-    if (user.password) {
-      user.password = await hashPassword(user.password);
-    }
-    await txc.user.update({
-      where: {
-        id,
-      },
-      data: {
-        ...user,
-      },
-    });
+  const result = await prisma.$transaction(
+    async (txc) => {
+      const customer = await txc.customer.update({
+        where: {
+          id,
+        },
+        data: {
+          ...customerData,
+        },
+      });
+      if (user.password) {
+        user.password = await hashPassword(user.password);
+      }
+      const updatedUser = await txc.user.update({
+        where: {
+          id,
+        },
+        data: {
+          ...user,
+        },
+      });
 
-    return customer;
-  });
+      await sendEmail({
+        to: updatedUser?.email,
+        subject: "Account Updated",
+        html: `
+      <h3>Account Updated</h3>
+      <p>Hi, ${customer.name}</p>
+      <p>Your account has been updated</p>
+      <p>Email: ${updatedUser?.email}</p>
+      <p>Password: ${updatedUser?.password}</p>
+      <p>Please login to view your updated account</p>
+      <p>Thank you</p>
+      `,
+      });
+
+      return customer;
+    },
+    { timeout: 20000 }
+  );
 
   return result;
 };
