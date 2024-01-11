@@ -145,7 +145,7 @@ const acceptAccountRequest = async (
         take: 1,
       });
 
-      const generatedId = generateNewID("U-", latestPost[0]?.id);
+      const generatedId = generateNewID("G-", latestPost[0]?.id);
 
       const newCustomerData = {
         id: generatedId,
