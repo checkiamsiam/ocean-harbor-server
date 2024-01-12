@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const cron_1 = require("cron");
 const order_service_1 = __importDefault(require("../modules/order/order.service"));
 const orderStatusJob = cron_1.CronJob.from({
-    cronTime: "0 0 0 * * *",
+    cronTime: "0 0 0 * * *", // Runs at midnight every day,
     onTick: order_service_1.default.makeUnConfirmedOrderToSpamStatus,
     timeZone: "America/Los_Angeles",
 });
