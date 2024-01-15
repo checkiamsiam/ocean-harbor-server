@@ -1,3 +1,4 @@
+import { CustomerStatus } from "@prisma/client";
 import { z } from "zod";
 
 const createCustomerReq = z.object({
@@ -44,6 +45,27 @@ const createCustomerReq = z.object({
     })
     .strict(),
 });
+const updateCustomerReq = z.object({
+  body: z
+    .object({
+      password: z.string().optional(),
+      name: z.string().optional(),
+      companyName: z.string().optional(),
+      companyType: z.string().optional(),
+      companyRegNo: z.string().optional(),
+      companyDetails: z.string().optional(),
+      taxNumber: z.string().optional(),
+      address: z.string().optional(),
+      city: z.string().optional(),
+      country: z.string().optional(),
+      phone: z.string().optional(),
+      email: z.string().email().optional(),
+      status: z
+        .enum([CustomerStatus.active, CustomerStatus.disabled])
+        .optional(),
+    })
+    .strict(),
+});
 
 const createAdminReq = z.object({
   body: z.object({
@@ -64,6 +86,10 @@ const createAdminReq = z.object({
   }),
 });
 
-const userValidations = { createCustomerReq, createAdminReq };
+const userValidations = {
+  createCustomerReq,
+  createAdminReq,
+  updateCustomerReq,
+};
 
 export default userValidations;

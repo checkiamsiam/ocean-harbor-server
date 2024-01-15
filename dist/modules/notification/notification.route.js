@@ -10,6 +10,7 @@ const queryFeatures_middleware_1 = __importDefault(require("../../middleware/que
 const notification_controller_1 = __importDefault(require("./notification.controller"));
 const notificationRoutes = express_1.default.Router();
 notificationRoutes.get("/", (0, authorization_middleware_1.default)(client_1.UserRole.admin, client_1.UserRole.customer), (0, queryFeatures_middleware_1.default)("multiple"), notification_controller_1.default.getNotifications);
+notificationRoutes.get("/unread-count", (0, authorization_middleware_1.default)(client_1.UserRole.admin, client_1.UserRole.customer), notification_controller_1.default.getUnreadCount);
 notificationRoutes.patch("/read/:id", (0, authorization_middleware_1.default)(client_1.UserRole.admin, client_1.UserRole.customer), notification_controller_1.default.markAsRead);
 notificationRoutes.patch("/mark-all-as-read", (0, authorization_middleware_1.default)(client_1.UserRole.admin, client_1.UserRole.customer), notification_controller_1.default.markAllAsRead);
 exports.default = notificationRoutes;

@@ -20,10 +20,7 @@ const subCategory_service_1 = __importDefault(require("./subCategory.service"));
 const subCategory_validation_1 = __importDefault(require("./subCategory.validation"));
 const createSubCategory = (0, catchAsyncError_util_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const file = req.file;
-    if (!file) {
-        throw new customError_util_1.default("File isn't Upload Properly", http_status_1.default.INTERNAL_SERVER_ERROR);
-    }
-    else {
+    if (file) {
         req.body.icon = file.path;
     }
     yield subCategory_validation_1.default.create.parseAsync(req.body);

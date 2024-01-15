@@ -35,7 +35,7 @@ const sendErrorProd: THandleErrorResponse = (err, res) => {
     console.error("Error 💥" + err);
     // 2. Send generic message to client
     sendResponse(res, {
-      statusCode: httpStatus.INTERNAL_SERVER_ERROR,
+      statusCode: err.statusCode,
       success: false,
       message: "Something went wrong",
       error: {

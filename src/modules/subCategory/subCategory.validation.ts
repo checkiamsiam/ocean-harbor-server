@@ -5,9 +5,11 @@ const create = z
     title: z.string({
       required_error: "title is required",
     }),
-    icon: z.string({
-      required_error: "icon is required",
-    }),
+    icon: z
+      .string({
+        required_error: "icon is required",
+      })
+      .optional(),
     categoryId: z.string({
       required_error: "category id is required",
     }),

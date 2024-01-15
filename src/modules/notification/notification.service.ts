@@ -51,6 +51,26 @@ const getNotifications = async (
     };
   }
 };
+const getUnreadCount = async (user: JwtPayload): Promise<number> => {
+  if (user.role === UserRole.admin) {
+    const count = await prisma.adminNotification.count({
+      where: {
+        read: false,
+      },
+    });
+
+    return count;
+  } else {
+    const whereConditions: Prisma.CustomerNotificationWhereInput = {
+      customerId: user.userId,
+      read: false,
+    };
+    const count = await prisma.customerNotification.count({
+      where: whereConditions,
+    });
+    return count;
+  }
+};
 
 const markAsRead = async (
   user: JwtPayload,
@@ -59,7 +79,7 @@ const markAsRead = async (
   if (user.role === UserRole.admin) {
     const result = await prisma.adminNotification.update({
       where: {
-        id,
+        id: parseInt(id),
       },
       data: {
         read: true,
@@ -71,7 +91,7 @@ const markAsRead = async (
     const result = await prisma.customerNotification.update({
       where: {
         customerId: user.userId,
-        id,
+        id: parseInt(id),
       },
       data: {
         read: true,
@@ -105,6 +125,7 @@ const notificationService = {
   getNotifications,
   markAsRead,
   markAllAsRead,
+  getUnreadCount,
 };
 
 export default notificationService;

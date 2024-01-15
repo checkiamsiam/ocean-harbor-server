@@ -10,12 +10,7 @@ import subCategoryValidation from "./subCategory.validation";
 const createSubCategory: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
     const file = req.file;
-    if (!file) {
-      throw new AppError(
-        "File isn't Upload Properly",
-        httpStatus.INTERNAL_SERVER_ERROR
-      );
-    } else {
+    if (file) {
       req.body.icon = file.path;
     }
     await subCategoryValidation.create.parseAsync(req.body);

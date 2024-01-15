@@ -25,6 +25,16 @@ const getNotifications: RequestHandler = catchAsyncErrors(
     });
   }
 );
+const getUnreadCount: RequestHandler = catchAsyncErrors(
+  async (req: Request, res: Response) => {
+    const count = await notificationService.getUnreadCount(req.user);
+    sendResponse<{ count: number }>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      data: { count },
+    });
+  }
+);
 
 const markAsRead: RequestHandler = catchAsyncErrors(
   async (req: Request, res: Response) => {
@@ -62,5 +72,6 @@ const notificationController = {
   getNotifications,
   markAsRead,
   markAllAsRead,
+  getUnreadCount,
 };
 export default notificationController;

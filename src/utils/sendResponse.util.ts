@@ -10,7 +10,7 @@ interface IApiResponseData<T> {
   };
   meta?: {
     page: number;
-    limit: number;
+    limit: number | undefined;
     total: number;
   };
   data?: T | null;

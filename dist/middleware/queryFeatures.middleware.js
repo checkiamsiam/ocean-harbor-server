@@ -35,7 +35,9 @@ const queryFeatures = (documentNumber) => {
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit);
             const skip = (page - 1) * limit;
-            const searchKey = req.query.searchKey ? String(req.query.searchKey) : "";
+            const searchKey = req.query.searchKey
+                ? String(req.query.searchKey)
+                : "";
             let sort = req.query.sort;
             // create sort object
             const sortObj = {};
@@ -57,7 +59,14 @@ const queryFeatures = (documentNumber) => {
             // get filters
             const query = req.query;
             const filters = Object.assign({}, query);
-            const excludedFields = ["page", "sort", "limit", "fields", "searchKey", "populate"];
+            const excludedFields = [
+                "page",
+                "sort",
+                "limit",
+                "fields",
+                "searchKey",
+                "populate",
+            ];
             excludedFields.forEach((el) => delete filters[el]);
             Object.keys(filters).forEach((key) => {
                 if (filters[key] === "true") {

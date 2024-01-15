@@ -14,10 +14,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const prisma_helper_1 = __importDefault(require("../../helpers/prisma.helper"));
 const prismaClient_1 = __importDefault(require("../../shared/prismaClient"));
+const generateId_util_1 = require("../../utils/generateId.util");
 const create = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prismaClient_1.default.category.create({
-        data: payload,
-    });
+    const result = yield prismaClient_1.default.$transaction((txc) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        const latestPost = yield txc.category.findMany({
+            orderBy: { createdAt: "desc" },
+            take: 1,
+        });
+        const generatedId = (0, generateId_util_1.generateNewID)("C-", (_a = latestPost[0]) === null || _a === void 0 ? void 0 : _a.id);
+        payload.id = generatedId;
+        const result = yield txc.category.create({
+            data: payload,
+        });
+        return result;
+    }));
     return result;
 });
 const getCategories = (queryFeatures) => __awaiter(void 0, void 0, void 0, function* () {

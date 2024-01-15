@@ -6,9 +6,11 @@ const create = zod_1.z
     title: zod_1.z.string({
         required_error: "title is required",
     }),
-    icon: zod_1.z.string({
+    icon: zod_1.z
+        .string({
         required_error: "icon is required",
-    }),
+    })
+        .optional(),
     categoryId: zod_1.z.string({
         required_error: "category id is required",
     }),

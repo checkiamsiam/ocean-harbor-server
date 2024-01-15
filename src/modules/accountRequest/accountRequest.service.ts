@@ -14,24 +14,49 @@ import {
 import prisma from "../../shared/prismaClient";
 import { hashPassword } from "../../utils/bcrypt.util";
 import AppError from "../../utils/customError.util";
+import { generateNewID } from "../../utils/generateId.util";
+import sendEmail from "../../utils/sendMail.util";
+import config from "../../config";
 
 const create = async (payload: AccountRequest): Promise<AccountRequest> => {
-  const result = await prisma.$transaction(async (txc) => {
-    const result = await txc.accountRequest.create({
-      data: payload,
-    });
+  const result = await prisma.$transaction(
+    async (txc) => {
+      const latestPost = await txc.accountRequest.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      });
 
-    await txc.adminNotification.create({
-      data: {
-        message: `New account request from ${payload.name}`,
-        type: AdminNotificationType.AccountRequest,
-        title: "New account request",
-        refId: result.id,
-      },
-    });
+      payload.id = generateNewID("AR", latestPost[0]?.id);
 
-    return result;
-  });
+      const result = await txc.accountRequest.create({
+        data: payload,
+      });
+
+      await txc.adminNotification.create({
+        data: {
+          message: `New account request arrive for ${payload.name} from ${payload.email} `,
+          type: AdminNotificationType.AccountRequest,
+          title: "New account request",
+          refId: result.id,
+        },
+      });
+
+      await sendEmail({
+        to: config.adminEmail,
+        subject: "New account request",
+        html: `
+        <h3>New account request</h3>
+        <p>Hi, Admin</p>
+        <p>There is a New account request arrive for <b> ${payload.name} </b> from ${payload.email}</p>
+        <p>Please check your admin panel</p>
+        <p>Thank you</p>
+        `,
+      });
+
+      return result;
+    },
+    { timeout: 20000 }
+  );
 
   return result;
 };
@@ -93,50 +118,82 @@ const acceptAccountRequest = async (
   id: string,
   password: string
 ): Promise<Partial<Customer> | null> => {
-  const customer = await prisma.$transaction(async (txc) => {
-    const accountRequestData = await txc.accountRequest.delete({
-      where: { id },
-    });
+  const customer = await prisma.$transaction(
+    async (txc) => {
+      const accountRequestData = await txc.accountRequest.delete({
+        where: { id },
+      });
 
-    if (!accountRequestData) {
-      throw new AppError("Account request not found", httpStatus.NOT_FOUND);
-    }
+      if (!accountRequestData) {
+        throw new AppError("Account request not found", httpStatus.NOT_FOUND);
+      }
 
-    const username = accountRequestData.email.split("@")[0];
+      const username =
+        accountRequestData.email.split("@")[0] +
+        Math.floor(Math.random() * 10) +
+        Math.floor(Math.random() * 10);
 
-    const newUserData: Partial<User> = {
-      email: accountRequestData.email,
-      username,
-    };
+      const newUserData: Partial<User> = {
+        email: accountRequestData.email,
+        username,
+      };
 
-    newUserData.password = await hashPassword(password);
+      newUserData.password = await hashPassword(password);
 
-    const newCustomerData: Partial<Customer> = {
-      name: accountRequestData.name,
-      companyName: accountRequestData.companyName,
-      companyType: accountRequestData.companyType,
-      companyRegNo: accountRequestData.companyRegNo,
-      companyDetails: accountRequestData.companyDetails,
-      taxNumber: accountRequestData.taxNumber,
-      address: accountRequestData.address,
-      city: accountRequestData.city,
-      country: accountRequestData.country,
-      phone: accountRequestData.phone,
-    };
+      const latestPost = await txc.user.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      });
 
-    const customer = await txc.customer.create({
-      data: newCustomerData as Customer,
-    });
+      const generatedId = generateNewID("O-", latestPost[0]?.id);
 
-    await txc.user.create({
-      data: {
-        ...(newUserData as User),
-        customerId: customer.id,
-      },
-    });
+      const newCustomerData = {
+        id: generatedId,
+        name: accountRequestData.name,
+        companyName: accountRequestData.companyName,
+        companyType: accountRequestData.companyType,
+        companyRegNo: accountRequestData.companyRegNo,
+        companyDetails: accountRequestData.companyDetails,
+        taxNumber: accountRequestData.taxNumber,
+        address: accountRequestData.address,
+        city: accountRequestData.city,
+        country: accountRequestData.country,
+        phone: accountRequestData.phone,
+      };
 
-    return customer;
-  });
+      const customer = await txc.customer.create({
+        data: newCustomerData,
+      });
+
+      newUserData.customerId = customer.id;
+      newUserData.id = customer.id;
+
+      const user = await txc.user.create({
+        data: {
+          ...newUserData,
+        } as User,
+      });
+
+      await sendEmail({
+        to: user?.email,
+        subject: "Account request Approved",
+        html: `
+      <h3>Account request Approved</h3>
+      <p>Hi, ${customer.name}</p>
+      <p>Your account request has been approved</p>
+      <p>User Id: ${user?.id}</p>
+      <p>Username: ${user?.username}</p>
+      <p>Email: ${user?.email}</p>
+      <p>Password: ${password}</p>
+      <p>Please login to your account</p>
+      <p>Thank you</p>
+      `,
+      });
+
+      return customer;
+    },
+    { timeout: 20000 }
+  );
 
   return customer;
 };
@@ -148,6 +205,22 @@ const deleteAccountRequest = async (id: string) => {
         id,
       },
     });
+
+  if (result) {
+    await sendEmail({
+      to: result?.email,
+      subject: "Account request Declined",
+      html: `
+    <h3>Account request Declined</h3>
+    <p>Hi, ${result.name}</p>
+    <p>Your account request has been Declined</p>
+    <p>Please contact us for more information</p>
+    <p>Thank you</p>
+    `,
+    });
+  } else {
+    throw new AppError("Account request not found", httpStatus.NOT_FOUND);
+  }
 
   return result;
 };
