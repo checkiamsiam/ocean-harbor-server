@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
     (0, sendResponse_util_1.default)(res, {
         statusCode: 200,
         success: true,
-        message: "Welcome to golden anchor server",
+        message: "Welcome to ocean harbor server",
     });
 });
 // Not found catch
