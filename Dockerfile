@@ -1,5 +1,5 @@
 # Production stage
-FROM node:alpine
+FROM node:16-alpine
 
 WORKDIR /app
 
@@ -7,7 +7,8 @@ COPY ./dist ./dist
 COPY ./prisma/schema.prisma ./prisma/schema.prisma
 COPY ./package.json ./
 
-RUN npm install --only=production
+RUN npm ci --only=production --ignore-scripts
+RUN npx prisma generate
 
 EXPOSE 5000
 
