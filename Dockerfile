@@ -5,9 +5,14 @@ WORKDIR /app
 
 COPY package.json ./
 
-ENV NODE_ENV=production
+ENV NODE_ENV production
 
-RUN npm install --production
+ARG DATABASE_URL ${DATABASE_URL}
+ENV DATABASE_URL ${DATABASE_URL}
+ARG NAME ${NAME}
+ENV NAME ${NAME}
+
+RUN npm install
 
 COPY dist ./dist
 
