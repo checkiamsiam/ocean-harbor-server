@@ -30,7 +30,7 @@ app.get("/", (req, res) => {
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: "Welcome to ocean harbor server",
+    message: "Welcome to Ocean Harbor Server (APIs)",
   });
 });
 
