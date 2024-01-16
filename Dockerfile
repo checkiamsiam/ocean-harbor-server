@@ -3,15 +3,13 @@ FROM node:16-alpine
 
 WORKDIR /app
 
-COPY package.json ./
-
-RUN npm install
-
 COPY dist ./dist
 
 COPY prisma/schema.prisma ./prisma/schema.prisma
 
-RUN npx prisma generate
+COPY package.json ./
+
+RUN npm install --only=production
 
 EXPOSE 5000
 
