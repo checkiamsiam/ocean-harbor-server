@@ -3,11 +3,14 @@ FROM node:16-alpine
 
 WORKDIR /app
 
-COPY ./dist ./dist
-COPY ./prisma/schema.prisma ./prisma/schema.prisma
-COPY ./package.json ./
+COPY package.json ./
 
 RUN npm ci --only=production --ignore-scripts
+
+COPY dist ./dist
+
+COPY prisma/schema.prisma ./prisma/schema.prisma
+
 RUN npx prisma generate
 
 EXPOSE 5000
