@@ -3,12 +3,11 @@ FROM node:alpine AS builder
 
 WORKDIR /app
 
-COPY package.json ./
-RUN npm install
-
 COPY . .
 
-RUN npm run build 
+RUN npm install
+
+RUN tsc 
 
 # Production stage
 FROM node:alpine
