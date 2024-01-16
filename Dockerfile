@@ -3,13 +3,13 @@ FROM node:16-alpine
 
 WORKDIR /app
 
-COPY dist ./dist
-
-COPY prisma/schema.prisma ./prisma/schema.prisma
-
 COPY package.json ./
 
 RUN npm install --omit=dev
+
+COPY dist ./dist
+
+COPY prisma/schema.prisma ./prisma/schema.prisma
 
 EXPOSE 5000
 
