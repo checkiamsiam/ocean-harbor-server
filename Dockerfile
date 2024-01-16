@@ -9,7 +9,7 @@ COPY prisma/schema.prisma ./prisma/schema.prisma
 
 COPY package.json ./
 
-RUN npm ci
+RUN npm install --omit=dev
 
 EXPOSE 5000
 
