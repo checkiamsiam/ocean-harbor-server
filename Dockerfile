@@ -3,11 +3,15 @@ FROM node:alpine AS builder
 
 WORKDIR /app
 
-COPY . .
+COPY package.json ./
 
 RUN npm install
 
-RUN tsc 
+COPY . .
+
+RUN npm install typescript@latest -g
+
+RUN npm run build
 
 # Production stage
 FROM node:alpine
