@@ -6,8 +6,9 @@ on:
 
 jobs:
   build:
-    environment: Production
     runs-on: ubuntu-latest
+
+    environment: Production
 
     steps:
       - name: Checkout Code
@@ -16,7 +17,8 @@ jobs:
       - name: Create .env File
         run: |
          # Assuming production environment variables are accessible as GitHub Actions secrets
-         echo "DATABASE_URL=${{secrets.DATABASE_URL}}" >> .env
+         echo "DATABASE_URL=postgresql://postgres:ta81TSMaktITp5k5@db.lvvqrihhvntnibjwvbly.supabase.co:5432/postgres" >> .env
+         echo "CHK=YES its work" >> .env
 
       - name: Install Dependencies
         run: yarn install

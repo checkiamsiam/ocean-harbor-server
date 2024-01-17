@@ -4,6 +4,7 @@ import IConfig from "../interfaces/config.interface";
 dotenv.config();
 
 const config: IConfig = {
+  CHK: process.env.CHK || "",
   isDevelopment: process.env.NODE_ENV === "development",
   port: process.env.PORT || 5000,
   jwt: {
