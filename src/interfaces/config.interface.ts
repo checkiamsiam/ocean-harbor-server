@@ -1,5 +1,4 @@
 interface IConfig {
-  name: string;
   isDevelopment: boolean;
   port: number | string;
   jwt: {
