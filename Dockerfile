@@ -11,7 +11,7 @@ COPY .env ./
 
 COPY package.json ./
 
-RUN npm install
+RUN npm install --only=production
 
 RUN npx prisma generate
 
