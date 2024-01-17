@@ -4,22 +4,18 @@ on:
   push:
     branches: ["main"]
 
+env:
+  DATABASE_URL: postgresql://postgres:ta81TSMaktITp5k5@db.lvvqrihhvntnibjwvbly.supabase.co:5432/postgres
+  CHK: yes bro its working
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    environment: Production
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
-      - name: Create .env File
-        run: |
-         # Assuming production environment variables are accessible as GitHub Actions secrets
-         echo "DATABASE_URL=postgresql://postgres:ta81TSMaktITp5k5@db.lvvqrihhvntnibjwvbly.supabase.co:5432/postgres" >> .env
-         echo "CHK=YES its work" >> .env
-
+        
       - name: Install Dependencies
         run: yarn install
 
