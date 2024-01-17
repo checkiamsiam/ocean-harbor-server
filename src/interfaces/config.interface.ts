@@ -1,5 +1,4 @@
 interface IConfig {
-  CHK: string;
   isDevelopment: boolean;
   port: number | string;
   jwt: {
