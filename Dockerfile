@@ -8,15 +8,15 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json ./
-RUN npm install
+RUN npm install\
+        && npm install typescript -g
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm install -g typescript
-RUN npm run build
+RUN tsc
 
 
 # Production stage
