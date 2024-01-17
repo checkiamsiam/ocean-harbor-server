@@ -18,6 +18,7 @@ jobs:
         run: |
          # Assuming production environment variables are accessible as GitHub Actions secrets
          echo "DATABASE_URL=postgresql://postgres:ta81TSMaktITp5k5@db.lvvqrihhvntnibjwvbly.supabase.co:5432/postgres" >> .env
+         echo "CHK=YES its work" >> .env
 
       - name: Install Dependencies
         run: yarn install
