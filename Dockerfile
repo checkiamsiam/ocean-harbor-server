@@ -6,7 +6,8 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package*.json ./
 COPY tsconfig*.json ./
-RUN npm install
+RUN npm install --ignore-scripts 
+RUN npx prisma generate
 COPY . ./
 RUN npm run build
 
