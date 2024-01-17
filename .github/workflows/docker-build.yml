@@ -28,12 +28,6 @@ jobs:
          echo "MAILING_DOMAIN=${{secrets.MAILING_DOMAIN}}" >> .env
          echo "MAILTRAP_SENDING_EMAIL=${{secrets.MAILTRAP_SENDING_EMAIL}}" >> .env
          echo "ADMIN_EMAIL=${{secrets.ADMIN_EMAIL}}" >> .env
-        
-      # - name: Install Dependencies
-      #   run: yarn install
-
-      # - name: Build Application
-      #   run: yarn build
 
       - name: Login to docker hub
         run: echo "${{secrets.DOCKERHUB_TOKEN}}" | docker login -u "${{secrets.DOCKERHUB_USERNAME}}" --password-stdin

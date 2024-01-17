@@ -1,18 +1,26 @@
 FROM node:18-alpine AS base
 
-# Install dependencies only when needed
+# Install dependencies only when needed and build app
 FROM base AS builder
+
 RUN apk add --no-cache libc6-compat
+
 WORKDIR /app
+
 COPY package*.json ./
+
 COPY tsconfig*.json ./
+
 RUN npm install --ignore-scripts 
+
 COPY . ./
+
 RUN npx prisma generate
+
 RUN npm run build
 
 
-# Production stage
+# app runner
 FROM base AS runner
 
 WORKDIR /app
