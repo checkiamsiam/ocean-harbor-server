@@ -15,7 +15,8 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN yarn build
+RUN npm install -g typescript
+RUN npm run build
 
 
 # Production stage
