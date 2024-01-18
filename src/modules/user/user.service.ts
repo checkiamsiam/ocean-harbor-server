@@ -42,7 +42,7 @@ const createCustomer = async (
         take: 1,
       });
 
-      const generatedId = generateNewID("O-", latestPost[0]?.id);
+      const generatedId = generateNewID("H-", latestPost[0]?.id);
 
       customerData.id = generatedId;
 
@@ -91,7 +91,7 @@ const createAdmin = async (
       orderBy: { createdAt: "desc" },
       take: 1,
     });
-    const generatedId = generateNewID("O-", latestPost[0]?.id);
+    const generatedId = generateNewID("H-", latestPost[0]?.id);
     adminData.id = generatedId;
     const admin = await txc.admin.create({
       data: adminData,
