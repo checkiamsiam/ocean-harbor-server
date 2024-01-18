@@ -27,7 +27,7 @@ const requestQuotation = async (
         take: 1,
       });
 
-      const generatedId = generateNewID("O-", latestPost[0]?.id);
+      const generatedId = generateNewID("H-", latestPost[0]?.id);
 
       const order = await txc.order.create({
         data: {

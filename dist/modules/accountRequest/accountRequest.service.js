@@ -110,7 +110,7 @@ const acceptAccountRequest = (id, password) => __awaiter(void 0, void 0, void 0,
             orderBy: { createdAt: "desc" },
             take: 1,
         });
-        const generatedId = (0, generateId_util_1.generateNewID)("O-", (_b = latestPost[0]) === null || _b === void 0 ? void 0 : _b.id);
+        const generatedId = (0, generateId_util_1.generateNewID)("H-", (_b = latestPost[0]) === null || _b === void 0 ? void 0 : _b.id);
         const newCustomerData = {
             id: generatedId,
             name: accountRequestData.name,

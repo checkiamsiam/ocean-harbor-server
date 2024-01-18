@@ -26,7 +26,7 @@ const requestQuotation = (authUserId, items) => __awaiter(void 0, void 0, void 0
             orderBy: { createdAt: "desc" },
             take: 1,
         });
-        const generatedId = (0, generateId_util_1.generateNewID)("O-", (_a = latestPost[0]) === null || _a === void 0 ? void 0 : _a.id);
+        const generatedId = (0, generateId_util_1.generateNewID)("H-", (_a = latestPost[0]) === null || _a === void 0 ? void 0 : _a.id);
         const order = yield txc.order.create({
             data: {
                 id: generatedId,
