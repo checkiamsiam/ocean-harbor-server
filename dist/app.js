@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
     (0, sendResponse_util_1.default)(res, {
         statusCode: 200,
         success: true,
-        message: "Welcome to ocean harbor server",
+        message: `Welcome to Ocean Harbor Server (APIs)`,
     });
 });
 // Not found catch
