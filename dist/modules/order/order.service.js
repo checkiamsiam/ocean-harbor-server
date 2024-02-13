@@ -216,10 +216,9 @@ const quotationApprove = (id, quotationFilePath) => __awaiter(void 0, void 0, vo
     <h3>Quotation request approved</h3>
     <p>Hi, ${(_f = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _f === void 0 ? void 0 : _f.name}</p>
     <p>Your quotation request for order id ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id} has been approved</p>
-    <p>Please check your account</p>
+    <p> <a href=${quotationFilePath}> Click here </a> to download the quotation</p>
     <p>Thank you</p>
-    `,
-            attachments: [{ filename: "quotation.pdf", path: quotationFilePath }],
+    `
         });
         return orderResponse;
     }), { timeout: 20000 });
@@ -408,10 +407,9 @@ const invoiceUpload = (id, invoiceFilePath) => __awaiter(void 0, void 0, void 0,
   <h3>Invoice Added</h3>
   <p>Hi, ${(_u = orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.customer) === null || _u === void 0 ? void 0 : _u.name}</p>
   <p>Invoice added for your order id ${orderResponse === null || orderResponse === void 0 ? void 0 : orderResponse.id}</p>
-  <p>Please check your account</p>
+  <p> <a href=${invoiceFilePath}> Click here </a> to download the invoice</p>
   <p>Thank you</p>
-  `,
-            attachments: [{ filename: "quotation.pdf", path: invoiceFilePath }],
+  `
         });
         return orderResponse;
     }), { timeout: 20000 });
